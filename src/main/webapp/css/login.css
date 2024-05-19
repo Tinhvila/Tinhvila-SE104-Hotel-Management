@@ -1,0 +1,40 @@
+body{
+    height: 100vh;
+}
+
+#contanier{
+    background-image: url("./img/hero-3.jpg");
+    background-repeat: no-repeat;
+    height: 100vh;
+    background-size: cover;
+    font-family: "Lora",sans-serif;
+}
+
+#title{
+    font-size: 6rem;
+}
+
+.card-text{
+    width: 80%;
+}
+
+.form{
+    padding: 2rem 2rem;
+}
+
+#titleLogin{
+  padding-bottom: 1rem;
+  margin-bottom: 0;
+}
+
+#emailGroup{
+    padding-bottom: 1rem;
+}
+
+#message{
+	margin-top: 0;
+    margin-bottom: 0rem;
+    color: red;
+    font-size: 0.8rem;
+}
+

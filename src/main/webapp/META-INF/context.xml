@@ -1,0 +1,8 @@
+<Context>
+  <Resource name="jdbc/hotel_db" 
+  			auth="Container" type="javax.sql.DataSource"
+               maxTotal="10" maxIdle="2" maxWaitMillis="10000"
+               username="root" password="12345678" 
+               driverClassName="com.mysql.cj.jdbc.Driver"
+               url="jdbc:mysql://localhost:3307/hotel_db?useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=TRUE"/>
+</Context>
