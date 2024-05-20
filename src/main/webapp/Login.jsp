@@ -12,6 +12,8 @@
    		<style >
    			<%@ include file="./css/login.css"%>
    		</style>
+   		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+   		
    		
    		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,10 +55,12 @@
                             aria-describedby="emailHelp" placeholder="Nhập email...">
                     </div>
 
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-3 position-relative">
                         <label for="exampleInputPassword1">Mật khẩu</label>
-                        <input type="password" name="password" class="form-control" id="exampleInputPassword1"
+                        <input type="password" name="password" class="form-control" id="passwordLogin"
                             placeholder="Nhập mật khẩu...">
+                            <i class="fa-solid fa-eye position-absolute "></i>
+                            <i class="fa-solid fa-eye-slash position-absolute "></i>
                     </div>
 
                     <div class="form-group d-block text-center">
@@ -67,6 +71,23 @@
         </div>
 	
 	<script src="./js/bootstrap.bundle.min.js"></script>
+    <script>
+    var eye = document.getElementsByClassName("fa-eye")[0];
+    var eye_slash = document.getElementsByClassName("fa-eye-slash")[0];
+
+    eye_slash.addEventListener("click", () => {
+        eye_slash.style.display = "none";
+        eye.style.display = "block";
+        passwordLogin.setAttribute("type", "text")
+    })
+
+    eye.addEventListener("click", () => {
+        eye_slash.style.display = "block";
+        eye.style.display = "none";
+        passwordLogin.setAttribute("type", "password")
+    })
+
+    </script>
     </body>
 
     </html>

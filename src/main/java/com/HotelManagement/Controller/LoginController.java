@@ -2,6 +2,7 @@ package com.HotelManagement.Controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -12,7 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
+import com.HotelManagement.DAO.AuthorizationDAO;
 import com.HotelManagement.DAO.UserDAO;
+import com.HotelManagement.Entity.Authorization;
 import com.HotelManagement.Entity.User;
 
 /**
@@ -22,7 +25,7 @@ import com.HotelManagement.Entity.User;
 public class LoginController extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-    
+	private AuthorizationDAO authorizationDAO;
 	private UserDAO userDAO;
 	
 	@Resource(name="jdbc/hotel_db")
@@ -34,6 +37,7 @@ public class LoginController extends HttpServlet {
 	public void init() throws ServletException {
 		super.init();
 		try {
+			authorizationDAO = new AuthorizationDAO(dataSource);
 			userDAO = new UserDAO(dataSource);			
 		}
 		catch (Exception e) {
@@ -54,11 +58,15 @@ public class LoginController extends HttpServlet {
 			if(u != null) {
 				HttpSession session = request.getSession();
 				session.setAttribute("user", u);
+				List<Authorization> listAuths = authorizationDAO.getAllAuthorization(); 
+				session.setAttribute("listAuths", listAuths);
 				response.sendRedirect(request.getContextPath() + "/home");
 				}
 			else {
 				String message = "*Tài khoản hoặc mật khẩu không đúng!";
 				request.setAttribute("message", message);
+				
+				
 				request.getRequestDispatcher("/Login.jsp").forward(request, response);
 			}
 		} catch (SQLException e) {

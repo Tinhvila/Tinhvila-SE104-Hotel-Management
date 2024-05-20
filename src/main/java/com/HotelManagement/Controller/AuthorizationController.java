@@ -50,8 +50,15 @@ public class AuthorizationController extends HttpServlet {
     
    
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String roleGroupId = getRoleGroupOfUser(request);
+		HttpSession session = request.getSession();
+		User user = (User) session.getAttribute("user");
 		
+		if(user == null) {
+			response.sendRedirect(request.getContextPath() +"/login");
+			return;
+		}
+		
+		String roleGroupId = getRoleGroupOfUser(request);
 		int permissionFlag = 0;
 		try {
 			permissionFlag = getPermission(roleGroupId,SCREEN);
@@ -107,7 +114,7 @@ private String getRoleGroupOfUser(HttpServletRequest request) {
 	}
 
 
-private void updateRole(HttpServletRequest request, HttpServletResponse response) throws SQLException {
+private void updateRole(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
 		String roleId = request.getParameter("roleID");
 		String roleName = request.getParameter("roleName");
 		
@@ -147,6 +154,8 @@ private void updateRole(HttpServletRequest request, HttpServletResponse response
 		Authorization auth = new  Authorization(roleId, roleName, roomCategory, billForRent, search, reciept, revenue, authorization, setting);
 		
 		authorizationDAO.updateRole(auth);
+		
+		response.sendRedirect(request.getContextPath() + "/authorization");
 }
 
 
@@ -211,6 +220,10 @@ private void listInfo(HttpServletRequest request, HttpServletResponse response) 
 		List<User> listUsers = userDAO.getAllUsers();
 		request.setAttribute("listAuths", listAuths);
 		request.setAttribute("listUsers", listUsers);
+		
+		HttpSession session = request.getSession();
+		session.setAttribute("listAuths", listAuths);
+
 		
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/Authorization.jsp");
 		dispatcher.forward(request, response);

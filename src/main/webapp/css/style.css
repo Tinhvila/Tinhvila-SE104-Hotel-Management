@@ -215,3 +215,13 @@ a.sidebar-link:hover {
     background-repeat: no-repeat;
     background-size: cover;
 }
+
+.fa-solid{
+	right:13px;
+	cursor: pointer;
+	top:62%;
+}
+
+.fa-eye{
+	display: none;
+}

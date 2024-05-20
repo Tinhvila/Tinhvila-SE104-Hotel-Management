@@ -45,50 +45,72 @@
                 </div>
             </div>
             <ul class="sidebar-nav">
-                <li class="sidebar-item">
-                    <a href="<%=request.getContextPath()%>/room-category" class="sidebar-link">
-                        <i class="lni lni-tab"></i>
-                        <span>Danh mục phòng</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="<%=request.getContextPath()%>/bill-for-rent" class="sidebar-link active">
-                        <i class="lni lni-agenda"></i>
-                        <span>Phiếu thuê phòng</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
+                <c:forEach var="auth" items="${sessionScope.listAuths}">
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.roomCategoryScreen == 1}">
+	                <li class="sidebar-item">
+	                    <a href="<%=request.getContextPath()%>/room-category" class="sidebar-link ">
+	                        <i class="lni lni-tab"></i>
+	                        <span>Danh mục phòng</span>
+	                    </a>
+	                </li>
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.billForRentScreen == 1}">
+	                <li class="sidebar-item">
+	                    <a href="<%=request.getContextPath()%>/bill-for-rent" class="sidebar-link active">
+	                        <i class="lni lni-agenda"></i>
+	                        <span>Phiếu thuê phòng</span>
+	                    </a>
+                	</li>
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.searchScreen == 1}">
+	                 <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/search" class="sidebar-link">
                         <i class="lni lni-search-alt"></i>
                         <span>Tra cứu phòng</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
-                    <a href="<%=request.getContextPath()%>/reciept" class="sidebar-link ">
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.recieptScreen == 1}">
+	               <li class="sidebar-item">
+                    <a href="<%=request.getContextPath()%>/reciept" class="sidebar-link">
                         <i class="lni lni-postcard"></i>
                         <span>Hóa đơn thanh toán</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
+	           	</c:if>
+	       	    	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.revenueScreen == 1}">
+	            <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/revenue" class="sidebar-link">
                         <i class="lni lni-target-revenue"></i>
                         <span>Báo cáo doanh thu</span>
                     </a>
                 </li>
-                
-                 <li class="sidebar-item">
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.authorizationScreen == 1}">
+	            <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/authorization" class="sidebar-link ">
                         <i class="lni lni-users"></i>
                         <span>Phân quyền tài khoản</span>
                     </a>
                 </li>
-                
-                <li class="sidebar-item">
+	           	</c:if>
+	           	
+	           		<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.settingScreen == 1}">
+	            <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/setting" class="sidebar-link">
                         <i class="lni lni-cogs"></i>
                         <span>Quy định</span>
                     </a>
                 </li>
+	           	</c:if>
+	           	
+            </c:forEach>
+
                 
             </ul>
             <div class="sidebar-footer">
@@ -103,7 +125,7 @@
             <div
                 class="shadowCustom overflow-hidden rounded d-flex justify-content-between align-items-center mb-4 p-3 bg-white">
                 <h1 style="margin: 0;">Phiếu thuê phòng</h1>
-                <h1 style="margin: 0;">Xin chào, Siêu quản trị</h1>
+                <h1 style="margin: 0;">Xin chào, <c:out value="${sessionScope.user.fullName}" /></h1>
             </div>
 
             <div class="container">
@@ -282,7 +304,7 @@
 					                            						<c:forEach var="listCustomer" items="${listCustomer}">
 					                            						<c:if test="${roomBill.roomBillId==listCustomer.roomBillId}">
 						                            						<tr>
-						                            							<th scope="row"><%=k++%></th>
+						                            							<th scope="row"><%=k%></th>
 						                            							<td>${listCustomer.customerName}</td>
 						                            							<td>
 						                            								<c:forEach var="listTypeCustomer" items="${listTypeCustomer}">
@@ -294,6 +316,7 @@
 						                            							<td>${listCustomer.customerAddress }</td>
 						                            							<td>${listCustomer.customerIdentityCode}</td>
 						                            						</tr>
+						                            					<%k++;%>
 						                            					</c:if>
 					                            						</c:forEach>
 						                            					</tbody>
@@ -413,11 +436,17 @@
 											                        		    input1 = this.value;
 											                        		    delete date1;
 											                        		    date1 = new Date(input1);
+											                        		    input2 = document.getElementById("<%=j%>dateReturnTextFieldUpdate").value;
+											                        		    delete date2;
+											                        		    date2 = new Date(input2);
 											                        		});
 											                        		document.getElementById("<%=j%>dateReturnTextFieldUpdate").addEventListener("change", function() {
 											                        		    input2 = this.value;
 											                        		    delete date2;
 											                        		    date2 = new Date(input2);
+											                        		    input1 = document.getElementById("<%=j%>dateRentTextFieldUpdate").value;
+											                        		    delete date1;
+											                        		    date1 = new Date(input1);
 											                        		});
 										                                	function checkSubmitUpdate(){
 										                                		console.log(date1 + "\n" + date2)
@@ -516,9 +545,8 @@
 					                                    </div>
 					                                </div>
 					                            </div>
-						                        
-						                        </c:if>
 						                        <%k++;%>
+						                        </c:if>
 					                            </c:forEach>
 					                            
 					                            <div class="modal fade" id="<%=j %>insertCustomerCategory" tabindex="-1" aria-labelledby="insertCustomerLabel"

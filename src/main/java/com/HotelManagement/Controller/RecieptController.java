@@ -140,6 +140,7 @@ public class RecieptController extends HttpServlet {
 		getReceipt.setReceiptDayCreated(request.getParameter("receiptDayCreated"));
 		
 		receiptDAO.updateReceipt(getReceipt);
+		receiptDAO.insertRevenue(getReceipt);
 		response.sendRedirect(request.getContextPath() + "/reciept");
 	}
 	

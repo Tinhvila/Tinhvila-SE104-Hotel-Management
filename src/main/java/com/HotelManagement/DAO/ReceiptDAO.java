@@ -14,7 +14,9 @@ import javax.sql.DataSource;
 
 import com.HotelManagement.Entity.Receipt;
 import com.HotelManagement.Entity.RoomBill;
+import com.HotelManagement.Entity.TypeRoom;
 import com.HotelManagement.Entity.Room;
+import com.HotelManagement.Entity.Revenue;
 
 public class ReceiptDAO {
 	private DataSource dataSource;
@@ -351,6 +353,197 @@ public class ReceiptDAO {
 			if(preStmtGetRoom != null) preStmtGetRoom.close();
 			if(preStmtGetSumTotal != null) preStmtGetSumTotal.close();
 		}
+		
+	}
+	
+	public void insertRevenue(Receipt rcp) throws SQLException {
+		
+		Connection conn = null;
+		PreparedStatement preStmtGetTypeRoomList = null;
+		PreparedStatement preStmtUpdateRevenue = null;
+		PreparedStatement preStmtInsertRevenue = null;
+		PreparedStatement preStmtGetExistedRevenue = null;
+		Statement stmtGetRevenueId = null;
+		Statement stmtGetTypeRoomId = null;
+		
+		ResultSet rsGetTypeRoomList = null;
+		ResultSet rsGetRevenueId = null;
+		ResultSet rsGetTypeRoomId = null;
+		ResultSet rsGetExistedRevenue = null;
+		
+		String sqlGetTypeRoomList = "SELECT LP.MaLoaiPhong, LP.TenLoaiPhong, SUM(CTHD.ThanhTien), HD.NgayThanhToan\r\n"
+				+ "FROM HOADON HD \r\n"
+				+ "JOIN CHITIETHOADON CTHD ON HD.MaHoaDon = CTHD.MaHoaDon\r\n"
+				+ "JOIN PHIEUTHUEPHONG PTP ON CTHD.MaPhieuThue = PTP.MaPhieuThue \r\n"
+				+ "JOIN PHONG ON PTP.MaPhong = PHONG.MaPhong\r\n"
+				+ "JOIN LOAIPHONG LP ON PHONG.MaLoaiPhong = LP.MaLoaiPhong\r\n"
+				+ "WHERE CTHD.MaHoaDon = ?\r\n"
+				+ "GROUP BY LP.MaLoaiPhong;";
+		
+		//For the non-existence primary key
+		String sqlGetRevenueId = "SELECT Thang, Nam FROM DOANHTHU;";
+		String sqlInsertRevenue = "INSERT INTO DOANHTHU VALUES(?, ?, ?, ?, ?);";
+		String sqlGetTypeRoomId = "SELECT MaLoaiPhong FROM LOAIPHONG;";
+		
+		//For the existence primary key
+		String sqlGetExistedRevenue = "SELECT * FROM DOANHTHU WHERE Thang = ? AND Nam = ?;";
+		
+		//Use for both
+		String sqlUpdateRevenue = "UPDATE DOANHTHU SET DoanhThu = ?, TiLe = ? WHERE Thang = ? AND Nam = ? AND MaLoaiPhong = ?;";
+		
+		try {
+			conn = dataSource.getConnection();
+			
+			List<TypeRoom> getTypeRoom = new ArrayList<>();
+			List<Revenue> getRevenueTemp = new ArrayList<>();
+			preStmtGetTypeRoomList = conn.prepareStatement(sqlGetTypeRoomList);
+			preStmtGetTypeRoomList.setString(1, rcp.getReceiptId());
+			rsGetTypeRoomList = preStmtGetTypeRoomList.executeQuery();
+			
+			//Get a temporary list for type of room revenue after a payment for receipt is completed
+			//with the annualTime is the day payment with set string of yyyy-mm
+			while(rsGetTypeRoomList.next()) {
+				Revenue getIndex = new Revenue();
+				getIndex.setTypeRoomId(rsGetTypeRoomList.getString(1));
+				getIndex.setTypeRoomName(rsGetTypeRoomList.getString(2));
+				getIndex.setRevenueValue(rsGetTypeRoomList.getFloat(3));
+				getIndex.setAnnualTime(rsGetTypeRoomList.getString(4));
+				getRevenueTemp.add(getIndex);
+			}
+			//System.out.println("Get Revenue Temp Successfully!");
+			
+			String getDatePayment = "";
+			if(getRevenueTemp.size() > 0) {
+				getDatePayment = getRevenueTemp.get(0).getAnnualTime().substring(0, 7);
+				//System.out.println("Get Date Payment Successfully! Date Payment: " + getDatePayment);
+			}
+			
+			//Select the table of revenue to check whether the key is existed
+			stmtGetRevenueId = conn.createStatement();
+			rsGetRevenueId = stmtGetRevenueId.executeQuery(sqlGetRevenueId);
+			
+			
+			int isCreated = 0;
+			while(rsGetRevenueId.next()) {
+				if(getDatePayment != "" && Integer.parseInt(getDatePayment.substring(0, 4)) == rsGetRevenueId.getInt(2)
+						&& Integer.parseInt(getDatePayment.substring(5)) == rsGetRevenueId.getInt(1)) {
+					isCreated = 1;
+					//System.out.println("Date Payment for Revenue is existed!");
+					break;
+				}
+			}
+			
+			//If the annual time exists, update the value of revenue. Otherwise, insert into table
+			if(isCreated == 0) {
+				//System.out.println("Key does not exist!");
+				stmtGetTypeRoomId = conn.createStatement();
+				rsGetTypeRoomId = stmtGetTypeRoomId.executeQuery(sqlGetTypeRoomId);
+				//Create the revenue table with value of 0 and rate of 0 for each type of rooms
+				while(rsGetTypeRoomId.next()) {
+					TypeRoom getIndex = new TypeRoom();
+					getIndex.setTypeRoomID(rsGetTypeRoomId.getString(1));
+					//System.out.println(getIndex.getTypeRoomID());
+					getTypeRoom.add(getIndex);
+				}
+				
+				//Insert into the table with value
+				preStmtInsertRevenue = conn.prepareStatement(sqlInsertRevenue);
+				for(int i = 0; i < getTypeRoom.size(); i++) {
+					preStmtInsertRevenue.setInt(1, Integer.parseInt(getDatePayment.substring(5)));
+					preStmtInsertRevenue.setInt(2, Integer.parseInt(getDatePayment.substring(0, 4))); //Year
+					preStmtInsertRevenue.setString(3, getTypeRoom.get(i).getTypeRoomID());
+					//System.out.println(getDatePayment + " " + getTypeRoom.get(i).getTypeRoomID());
+					preStmtInsertRevenue.setFloat(4, 0);
+					preStmtInsertRevenue.setFloat(5, 0);
+					preStmtInsertRevenue.addBatch();
+				}
+				preStmtInsertRevenue.executeBatch();
+				
+				//Calculate the total revenue for the receipt of current month in year
+				double totalRevenue = 0;
+				for(int i = 0; i < getRevenueTemp.size(); i++) {
+					totalRevenue = totalRevenue + getRevenueTemp.get(i).getRevenueValue();
+				}
+				
+				//After insert into the table, update the data from the receipt to the table
+				preStmtUpdateRevenue = conn.prepareStatement(sqlUpdateRevenue);
+				for(int i = 0; i < getRevenueTemp.size(); i++) {
+					preStmtUpdateRevenue.setFloat(1, getRevenueTemp.get(i).getRevenueValue());
+					preStmtUpdateRevenue.setFloat(2, getRevenueTemp.get(i).getRevenueValue()/(float) totalRevenue);
+					preStmtUpdateRevenue.setInt(3, Integer.parseInt(getDatePayment.substring(5)));
+					preStmtUpdateRevenue.setInt(4, Integer.parseInt(getDatePayment.substring(0, 4)));
+					preStmtUpdateRevenue.setString(5, getRevenueTemp.get(i).getTypeRoomId());
+					preStmtUpdateRevenue.addBatch();
+				}
+				preStmtUpdateRevenue.executeBatch();
+			}
+			//If the annual time existed, collect data from the table with current revenue and add to the revenue,
+			//then update
+			else {
+				List<Revenue> getExistedRevenue = new ArrayList<>();
+				preStmtGetExistedRevenue = conn.prepareStatement(sqlGetExistedRevenue);
+				preStmtGetExistedRevenue.setInt(1, Integer.parseInt(getDatePayment.substring(5)));
+				preStmtGetExistedRevenue.setInt(2, Integer.parseInt(getDatePayment.substring(0, 4)));
+				
+				//Get data revenue from the table
+				rsGetExistedRevenue = preStmtGetExistedRevenue.executeQuery();
+				while(rsGetExistedRevenue.next()) {
+					Revenue getIndex = new Revenue();
+					getIndex.setMonth(rsGetExistedRevenue.getInt(1));
+					getIndex.setYear(rsGetExistedRevenue.getInt(2));
+					getIndex.setTypeRoomId(rsGetExistedRevenue.getString(3));
+					getIndex.setRevenueValue(rsGetExistedRevenue.getFloat(4));
+					getExistedRevenue.add(getIndex);
+				}
+				
+				//Calculate for the current revenue with collected data from table
+				double totalRevenue = 0;
+				for(int i = 0; i < getExistedRevenue.size(); i++) {
+					float temp = getExistedRevenue.get(i).getRevenueValue();
+					//System.out.println(getExistedRevenue.get(i).getTypeRoomId() + " initial value: " + temp);
+					for(int j = 0; j < getRevenueTemp.size(); j++) {
+						//System.out.println(getRevenueTemp.get(j).getTypeRoomId() + " " + getRevenueTemp.get(j).getRevenueValue());
+						if(getRevenueTemp.get(j).getTypeRoomId().equals(getExistedRevenue.get(i).getTypeRoomId())) {
+							temp = temp + getRevenueTemp.get(j).getRevenueValue();
+							//System.out.println("Addition value: " + temp + " value: " + getRevenueTemp.get(j).getRevenueValue());
+						}
+					}
+					//Load into existed revenue
+					//System.out.println("Final value: " + temp);
+					getExistedRevenue.get(i).setRevenueValue(temp);
+					//System.out.println(getExistedRevenue.get(i).getRevenueValue());
+					totalRevenue = totalRevenue + temp;
+				}
+				
+				//Update the revenue again
+				preStmtUpdateRevenue = conn.prepareStatement(sqlUpdateRevenue);
+				for(int i = 0; i < getExistedRevenue.size(); i++) {
+					preStmtUpdateRevenue.setFloat(1, getExistedRevenue.get(i).getRevenueValue());
+					preStmtUpdateRevenue.setFloat(2, getExistedRevenue.get(i).getRevenueValue()/(float) totalRevenue);
+					preStmtUpdateRevenue.setInt(3, Integer.parseInt(getDatePayment.substring(5)));
+					preStmtUpdateRevenue.setInt(4, Integer.parseInt(getDatePayment.substring(0, 4)));
+					preStmtUpdateRevenue.setString(5, getExistedRevenue.get(i).getTypeRoomId());
+					preStmtUpdateRevenue.addBatch();
+				}
+				preStmtUpdateRevenue.executeBatch();
+			}
+
+		}catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			if(conn != null) conn.close();
+			if(preStmtGetTypeRoomList != null) preStmtGetTypeRoomList.close();
+			if(preStmtUpdateRevenue != null) preStmtUpdateRevenue.close();
+			if(preStmtInsertRevenue != null) preStmtInsertRevenue.close();
+			if(rsGetTypeRoomList != null) rsGetTypeRoomList.close();
+			if(rsGetRevenueId != null) rsGetRevenueId.close();
+			if(stmtGetRevenueId != null) stmtGetRevenueId.close();
+			if(stmtGetTypeRoomId != null) stmtGetTypeRoomId.close();
+			if(rsGetTypeRoomId != null) rsGetTypeRoomId.close();
+			if(preStmtGetExistedRevenue != null) preStmtGetExistedRevenue.close();
+			if(rsGetExistedRevenue != null) rsGetExistedRevenue.close();
+		}
+		
 		
 	}
 	

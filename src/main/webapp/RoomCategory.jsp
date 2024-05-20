@@ -41,50 +41,74 @@
                 </div>
             </div>
             <ul class="sidebar-nav">
-                <li class="sidebar-item">
-                    <a href="<%=request.getContextPath()%>/room-category" class="sidebar-link active">
-                        <i class="lni lni-tab"></i>
-                        <span>Danh mục phòng</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="<%=request.getContextPath()%>/bill-for-rent" class="sidebar-link">
-                        <i class="lni lni-agenda"></i>
-                        <span>Phiếu thuê phòng</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
+            
+            <c:forEach var="auth" items="${sessionScope.listAuths}">
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.roomCategoryScreen == 1}">
+	                <li class="sidebar-item">
+	                    <a href="<%=request.getContextPath()%>/room-category" class="sidebar-link active">
+	                        <i class="lni lni-tab"></i>
+	                        <span>Danh mục phòng</span>
+	                    </a>
+	                </li>
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.billForRentScreen == 1}">
+	                <li class="sidebar-item">
+	                    <a href="<%=request.getContextPath()%>/bill-for-rent" class="sidebar-link">
+	                        <i class="lni lni-agenda"></i>
+	                        <span>Phiếu thuê phòng</span>
+	                    </a>
+                	</li>
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.searchScreen == 1}">
+	                 <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/search" class="sidebar-link">
                         <i class="lni lni-search-alt"></i>
                         <span>Tra cứu phòng</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.recieptScreen == 1}">
+	               <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/reciept" class="sidebar-link">
                         <i class="lni lni-postcard"></i>
                         <span>Hóa đơn thanh toán</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
+	           	</c:if>
+	       	    	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.revenueScreen == 1}">
+	            <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/revenue" class="sidebar-link">
                         <i class="lni lni-target-revenue"></i>
                         <span>Báo cáo doanh thu</span>
                     </a>
                 </li>
-
-                <li class="sidebar-item">
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.authorizationScreen == 1}">
+	            <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/authorization" class="sidebar-link ">
                         <i class="lni lni-users"></i>
                         <span>Phân quyền tài khoản</span>
                     </a>
                 </li>
-                
-                <li class="sidebar-item">
+	           	</c:if>
+	           	
+	           		<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.settingScreen == 1}">
+	            <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/setting" class="sidebar-link">
                         <i class="lni lni-cogs"></i>
                         <span>Quy định</span>
                     </a>
                 </li>
+	           	</c:if>
+	           	
+            </c:forEach>
+            
+
 
             </ul>
             <div class="sidebar-footer">
@@ -105,7 +129,7 @@
             <div class="row mx-0">
                 <div id="room-category" class=" h-full rounded overflow-auto shadowCustom  bg-white col-8 rounded-3 ">
                     <table class="table table-hover">
-                        <thead>
+                    <thead>
                             <tr>
                                 <th scope="col">STT</th>
                                 <th scope="col">Phòng</th>
@@ -223,7 +247,7 @@
                 <div class="col-3 p-0 d-flex flex-column justify-content-between mh-100">
                     <h5 class="text-center mb-2  bg-white p-2 rounded-3 shadowCustom">Thêm phòng mới</h5>
                     <form action="<%=request.getContextPath()%>/room-category"
-                        class="white bg- p-2 rounded-3 shadowCustom bg-white" method="post">
+                        class="white bg- p-2 rounded-3 shadowCustom bg-white" method="get">
 						
 						<input type="hidden" name="ACTION" value="ADD"/>
 

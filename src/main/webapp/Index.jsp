@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -34,50 +36,71 @@
                 </div>
             </div>
             <ul class="sidebar-nav">
-                <li class="sidebar-item">
-                    <a href="<%=request.getContextPath()%>/room-category" class="sidebar-link">
-                        <i class="lni lni-tab"></i>
-                        <span>Danh mục phòng</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="<%=request.getContextPath()%>/bill-for-rent" class="sidebar-link">
-                        <i class="lni lni-agenda"></i>
-                        <span>Phiếu thuê phòng</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
+                 <c:forEach var="auth" items="${sessionScope.listAuths}">
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.roomCategoryScreen == 1}">
+	                <li class="sidebar-item">
+	                    <a href="<%=request.getContextPath()%>/room-category" class="sidebar-link">
+	                        <i class="lni lni-tab"></i>
+	                        <span>Danh mục phòng</span>
+	                    </a>
+	                </li>
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.billForRentScreen == 1}">
+	                <li class="sidebar-item">
+	                    <a href="<%=request.getContextPath()%>/bill-for-rent" class="sidebar-link">
+	                        <i class="lni lni-agenda"></i>
+	                        <span>Phiếu thuê phòng</span>
+	                    </a>
+                	</li>
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.searchScreen == 1}">
+	                 <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/search" class="sidebar-link">
                         <i class="lni lni-search-alt"></i>
                         <span>Tra cứu phòng</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.recieptScreen == 1}">
+	               <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/reciept" class="sidebar-link">
                         <i class="lni lni-postcard"></i>
                         <span>Hóa đơn thanh toán</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
+	           	</c:if>
+	       	    	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.revenueScreen == 1}">
+	            <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/revenue" class="sidebar-link">
                         <i class="lni lni-target-revenue"></i>
                         <span>Báo cáo doanh thu</span>
                     </a>
                 </li>
-
-                <li class="sidebar-item">
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.authorizationScreen == 1}">
+	            <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/authorization" class="sidebar-link ">
                         <i class="lni lni-users"></i>
                         <span>Phân quyền tài khoản</span>
                     </a>
                 </li>
-                
-                <li class="sidebar-item">
+	           	</c:if>
+	           	
+	           		<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.settingScreen == 1}">
+	            <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/setting" class="sidebar-link">
                         <i class="lni lni-cogs"></i>
                         <span>Quy định</span>
                     </a>
                 </li>
+	           	</c:if>
+	           	
+            </c:forEach>
 
             </ul>
             <div class="sidebar-footer">

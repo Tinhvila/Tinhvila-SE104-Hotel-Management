@@ -38,3 +38,15 @@ body{
     font-size: 0.8rem;
 }
 
+.fa-solid{
+	right:10px;
+	cursor: pointer;
+	top:58%;
+}
+
+.fa-eye{
+	display: none;
+}
+
+
+

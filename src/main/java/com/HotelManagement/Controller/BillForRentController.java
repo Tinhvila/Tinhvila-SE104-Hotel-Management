@@ -17,6 +17,7 @@ import javax.sql.DataSource;
 
 import com.HotelManagement.DAO.RoomCategoryDAO;
 import com.HotelManagement.DAO.TypeOfCustomerDAO;
+import com.HotelManagement.DAO.UserDAO;
 import com.HotelManagement.Entity.CountCustomerRoomBill;
 import com.HotelManagement.Entity.Customer_RoomBillDetail;
 //import com.HotelManagement.DAO.TypeOfRoomDAO;
@@ -26,6 +27,7 @@ import com.HotelManagement.DAO.Customer_RoomBillDetailDAO;
 import com.HotelManagement.DAO.RoomBillDAO;
 import com.HotelManagement.Entity.RoomBill;
 import com.HotelManagement.Entity.TypeCustomer;
+import com.HotelManagement.Entity.User;
 
 @WebServlet("/bill-for-rent")
 public class BillForRentController extends HttpServlet {
@@ -33,9 +35,12 @@ public class BillForRentController extends HttpServlet {
 	private RoomCategoryDAO roomDAO;
 	//private TypeOfRoomDAO typeOfRoomDAO;
 	private RoomBillDAO roomBillDAO;
+	private UserDAO userDAO;
 	private TypeOfCustomerDAO typeOfCustomerDAO;
 	private Customer_RoomBillDetailDAO customer_RoomBillDetailDAO;
 
+	private final String SCREEN = "QuyenPhieuThuePhong";
+	
 	@Resource(name="jdbc/hotel_db")
 	private DataSource dataSource;
 	
@@ -44,6 +49,7 @@ public class BillForRentController extends HttpServlet {
 	public void init() throws ServletException {
 		super.init();
 		try {
+			userDAO =  new UserDAO(dataSource);
 			roomDAO = new RoomCategoryDAO(dataSource);	
 			roomBillDAO = new RoomBillDAO(dataSource);
 			typeOfCustomerDAO = new TypeOfCustomerDAO(dataSource);
@@ -58,40 +64,77 @@ public class BillForRentController extends HttpServlet {
     
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		HttpSession session = request.getSession();
+		User user = (User) session.getAttribute("user");
+		
+		if(user == null) {
+			response.sendRedirect(request.getContextPath() +"/login");
+			return;
+		}
+		
+		String roleGroupId = getRoleGroupOfUser(request);
+		
+		int permissionFlag = 0;
 		try {
-			String action = request.getParameter("ACTION");
-			if(action==null) action = "LIST";
-			
-			switch(action) {
-			case "INSERT_ROOMBILL":
-				insertRoomBill(request, response);
-				break;
-			case "DELETE_ROOMBILL":
-				deleteRoomBill(request, response);
-				break;
-			case "UPDATE_ROOMBILL":
-				updateRoomBill(request, response);
-				break;
-			case "INSERT_CUSTOMER":
-				insertCustomer(request, response);
-				break;
-			case "UPDATE_CUSTOMER":
-				updateCustomer(request, response);
-				break;
-			case "DELETE_CUSTOMER":
-				deleteCustomer(request, response);
-				break;
-			case "LIST":
-				listRooms(request, response);
-				break;
-			}
-			
-
-			
-		} catch (Exception e) {
+			permissionFlag = getPermission(roleGroupId,SCREEN);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		if(permissionFlag == 1) {
+			try {
+				String action = request.getParameter("ACTION");
+				if(action==null) action = "LIST";
+				
+				switch(action) {
+				case "INSERT_ROOMBILL":
+					insertRoomBill(request, response);
+					break;
+				case "DELETE_ROOMBILL":
+					deleteRoomBill(request, response);
+					break;
+				case "UPDATE_ROOMBILL":
+					updateRoomBill(request, response);
+					break;
+				case "INSERT_CUSTOMER":
+					insertCustomer(request, response);
+					break;
+				case "UPDATE_CUSTOMER":
+					updateCustomer(request, response);
+					break;
+				case "DELETE_CUSTOMER":
+					deleteCustomer(request, response);
+					break;
+				case "LIST":
+					listRooms(request, response);
+					break;
+				}
+				
+	
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else 
+			response.sendRedirect(request.getContextPath() + "/error");
 	}
+	
+	
+private int getPermission(String roleGroupId, String _AUTHENTICATION_SCREEN) throws SQLException {
+		
+		return userDAO.getPermission(roleGroupId,_AUTHENTICATION_SCREEN);
+	}
+
+
+private String getRoleGroupOfUser(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		User user = (User) session.getAttribute("user");
+		return user.getAuthorizationID();
+	}
+
+
 	
 	private void listRooms(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
 		

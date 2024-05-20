@@ -16,6 +16,10 @@ public class TypeRoom {
 		this.price = price;
 	}
 	
+	public TypeRoom() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public String getTypeRoomID() {
 		return typeRoomID;
 	}

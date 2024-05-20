@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
+<%@page import="com.HotelManagement.Entity.User"%>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,10 +14,15 @@
     <!-- Bootstrap => css -->
     <link rel="stylesheet" href="./css/bootstrap.min.css">
     <link rel="stylesheet" href="./css/style.css">
+    
+    <style >
+   			<%@ include file="./css/style.css"%>
+   		</style>
 
     <!-- line icon => css -->
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
-
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+   		
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,6 +32,7 @@
 </head>
 
 <body>
+
 	<%int i = 0;%>
     <div class="wrapper position-relative">
         <aside id="sidebar" class="expand vh-100 sticky-top">
@@ -38,49 +45,72 @@
                 </div>
             </div>
             <ul class="sidebar-nav">
-                <li class="sidebar-item">
-                    <a href="<%=request.getContextPath()%>/room-category" class="sidebar-link">
-                        <i class="lni lni-tab"></i>
-                        <span>Danh mục phòng</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="<%=request.getContextPath()%>/bill-for-rent" class="sidebar-link ">
-                        <i class="lni lni-agenda"></i>
-                        <span>Phiếu thuê phòng</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="<%=request.getContextPath()%>/search" class="sidebar-link ">
+                 <c:forEach var="auth" items="${sessionScope.listAuths}">
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.roomCategoryScreen == 1}">
+	                <li class="sidebar-item">
+	                    <a href="<%=request.getContextPath()%>/room-category" class="sidebar-link ">
+	                        <i class="lni lni-tab"></i>
+	                        <span>Danh mục phòng</span>
+	                    </a>
+	                </li>
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.billForRentScreen == 1}">
+	                <li class="sidebar-item">
+	                    <a href="<%=request.getContextPath()%>/bill-for-rent" class="sidebar-link">
+	                        <i class="lni lni-agenda"></i>
+	                        <span>Phiếu thuê phòng</span>
+	                    </a>
+                	</li>
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.searchScreen == 1}">
+	                 <li class="sidebar-item">
+                    <a href="<%=request.getContextPath()%>/search" class="sidebar-link">
                         <i class="lni lni-search-alt"></i>
                         <span>Tra cứu phòng</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
-                    <a href="<%=request.getContextPath()%>/reciept" class="sidebar-link ">
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.recieptScreen == 1}">
+	               <li class="sidebar-item">
+                    <a href="<%=request.getContextPath()%>/reciept" class="sidebar-link">
                         <i class="lni lni-postcard"></i>
                         <span>Hóa đơn thanh toán</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
+	           	</c:if>
+	       	    	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.revenueScreen == 1}">
+	            <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/revenue" class="sidebar-link">
                         <i class="lni lni-target-revenue"></i>
                         <span>Báo cáo doanh thu</span>
                     </a>
                 </li>
-                 <li class="sidebar-item">
+	           	</c:if>
+	           	
+	           	<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.authorizationScreen == 1}">
+	            <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/authorization" class="sidebar-link active">
                         <i class="lni lni-users"></i>
                         <span>Phân quyền tài khoản</span>
                     </a>
                 </li>
-                
-                <li class="sidebar-item">
+	           	</c:if>
+	           	
+	           		<c:if test="${auth.authorizationId == sessionScope.user.authorizationID && auth.settingScreen == 1}">
+	            <li class="sidebar-item">
                     <a href="<%=request.getContextPath()%>/setting" class="sidebar-link">
                         <i class="lni lni-cogs"></i>
                         <span>Quy định</span>
                     </a>
                 </li>
+	           	</c:if>
+	           	
+            </c:forEach>
+
             </ul>
             <div class="sidebar-footer">
                 <a href="<%=request.getContextPath()%>/logout" class="sidebar-link">
@@ -94,7 +124,7 @@
             <div
                 class="shadowCustom overflow-hidden rounded d-flex justify-content-between align-items-center mb-4 p-3 bg-white">
                 <h1 style="margin: 0;">Quy định</h1>
-                <h1 style="margin: 0;">Xin chào, Siêu quản trị</h1>
+                <h1 style="margin: 0;">Xin chào, <c:out value="${sessionScope.user.fullName}" /></h1>
             </div>
 
             <div class="row mx-0 mb-4">
@@ -471,9 +501,11 @@
                         	<small class="text-danger">${message}</small>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3 position-relative">
                             <label for="exampleInputPassword1" class="form-label">Mật khẩu</label>
-                            <input type="password" class="form-control" value="${password}" name="password" id="exampleInputPassword1" required>
+                            <input type="password" class="form-control" value="${password}" name="password" id="passwordLogin" required>
+                        	<i class="fa-solid fa-eye position-absolute "></i>
+                            <i class="fa-solid fa-eye-slash position-absolute "></i>
                         </div>
 
                         <div class="mb-3">
@@ -505,7 +537,23 @@
     
     <script src="./js/script.js"></script>
     <script src="./js/bootstrap.bundle.min.js"></script>
-    
+    <script>
+    var eye = document.getElementsByClassName("fa-eye")[0];
+    var eye_slash = document.getElementsByClassName("fa-eye-slash")[0];
+
+    eye_slash.addEventListener("click", () => {
+        eye_slash.style.display = "none";
+        eye.style.display = "block";
+        passwordLogin.setAttribute("type", "text")
+    })
+
+    eye.addEventListener("click", () => {
+        eye_slash.style.display = "block";
+        eye.style.display = "none";
+        passwordLogin.setAttribute("type", "password")
+    })
+
+    </script>
 </body>
 
 </html>
