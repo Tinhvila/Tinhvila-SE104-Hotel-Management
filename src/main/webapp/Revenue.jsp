@@ -167,7 +167,13 @@
                 </div>
                 <div class="col-1"></div>
                 <div class="col-5 p-0 d-flex flex-column mh-100">
-                    <h5 class="text-center mb-4  bg-white p-2 rounded-3 shadowCustom">Tổng doanh thu: <fmt:formatNumber type="number" groupingUsed="true" value="${requestScope.totalPriceRevenue}" />đ</h5>
+                    <h5 class="text-center mb-4  bg-white p-2 rounded-3 shadowCustom">Tổng doanh thu: 
+                    <c:choose>
+                    	<c:when test="${monthResponse == -1 and yearResponse == -1}">0</c:when>
+                    	<c:otherwise><fmt:formatNumber type="number" groupingUsed="true" value="${requestScope.totalPriceRevenue}" /></c:otherwise>
+                    </c:choose>
+                    đ
+                    </h5>
                     <form action="<%=request.getContextPath()%>/revenue"
                         class="white bg- p-2 rounded-3 shadowCustom bg-white" method="post">
                         <input type="hidden" name="ACTION" value="SEARCH"/>

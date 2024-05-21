@@ -1,6 +1,7 @@
 package com.HotelManagement.DAO;
 
 import com.HotelManagement.Entity.Customer_RoomBillDetail;
+import com.HotelManagement.Entity.RoomBill;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -281,6 +282,82 @@ public class Customer_RoomBillDetailDAO {
 		}
 		
 		
+	}
+	
+	public int countCustomer(String roomBillId) throws SQLException {
+		int getCount = 0;
+		
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		
+		String sqlSelectRoomBill = "SELECT COUNT(*)\r\n"
+				+ "FROM CHITIET_PTP CPTP JOIN PHIEUTHUEPHONG PTP ON CPTP.MaPhieuThue = PTP.MaPhieuThue\r\n"
+				+ "WHERE PTP.MaPhieuThue = ?;";
+		
+		try {
+			conn = dataSource.getConnection();
+			stmt = conn.prepareStatement(sqlSelectRoomBill);
+			stmt.setString(1, roomBillId);
+			rs = stmt.executeQuery();
+			
+			while(rs.next()) {
+				getCount = rs.getInt(1);
+			}
+			
+		} catch(SQLException e) {
+			
+		} finally {
+			close(conn, stmt, rs);
+		}
+		
+		
+		return getCount;
+	}
+	
+	public int isExistedCustomerOnRoomBill(String roomBillId, Customer_RoomBillDetail getCustomer) throws SQLException {
+		int isExisted = 0;
+		
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		
+		
+		String sqlGetCustomer = "SELECT * FROM CHITIET_PTP CPTP JOIN PHIEUTHUEPHONG PTP ON CPTP.MaPhieuThue = PTP.MaPhieuThue\r\n"
+				+ "WHERE PTP.MaPhieuThue = ?;";
+		
+		try {
+			conn = dataSource.getConnection();
+			stmt = conn.prepareStatement(sqlGetCustomer);
+			stmt.setString(1, roomBillId);
+			rs = stmt.executeQuery();
+			
+			List<Customer_RoomBillDetail> getList = new ArrayList<>();
+			while(rs.next()) {
+				Customer_RoomBillDetail getIndex = new Customer_RoomBillDetail();
+				getIndex.setCustomerName(rs.getString(3));
+				getIndex.setCustomerAddress(rs.getString(4));
+				getIndex.setCustomerIdentityCode(rs.getString(5));
+				getList.add(getIndex);
+			}
+			
+			for(int i = 0; i < getList.size(); i++) {
+				if(getCustomer.getCustomerName().equals(getList.get(i).getCustomerName()) &&
+						getCustomer.getCustomerAddress().equals(getList.get(i).getCustomerAddress()) &&
+						getCustomer.getCustomerIdentityCode().equals(getList.get(i).getCustomerIdentityCode())) {
+					isExisted = 1;
+					break;
+				}
+			}
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		finally {
+			close(conn, stmt, rs);
+		}
+		
+		return isExisted;
 	}
 	
 	

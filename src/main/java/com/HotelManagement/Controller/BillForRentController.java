@@ -202,7 +202,7 @@ private String getRoleGroupOfUser(HttpServletRequest request) {
 		response.sendRedirect(request.getContextPath() + "/bill-for-rent");
 	}
 	
-	private void insertCustomer(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+	private void insertCustomer(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
 		String roomBillId = request.getParameter("roomBillId");
 		String customerName = request.getParameter("customerName");
 		String customerAddress = request.getParameter("customerAddress");
@@ -215,18 +215,34 @@ private String getRoleGroupOfUser(HttpServletRequest request) {
 		cs.setCustomerIdentityCode(customerIdentityCode);
 		cs.setTypeCustomerId(customerType);
 		cs.setRoomBillId(roomBillId);
-
 		
-		customer_RoomBillDetailDAO.insertCustomer(cs);
+		Integer getMaxCustomer = customer_RoomBillDetailDAO.getMaxCustomerConstraint();
+		Integer getCurrentCustomer = customer_RoomBillDetailDAO.countCustomer(roomBillId);
+		Integer isExisted = customer_RoomBillDetailDAO.isExistedCustomerOnRoomBill(roomBillId, cs);
 		
-		RoomBill rbUpdate = new RoomBill();
-		rbUpdate.setRoomBillId(roomBillId);
-		roomBillDAO.updatePriceRoom_RoomBill(rbUpdate);
-		response.sendRedirect(request.getContextPath() + "/bill-for-rent");
+		if(getCurrentCustomer < getMaxCustomer && isExisted == 0) {
+			customer_RoomBillDetailDAO.insertCustomer(cs);
+			
+			RoomBill rbUpdate = new RoomBill();
+			rbUpdate.setRoomBillId(roomBillId);
+			roomBillDAO.updatePriceRoom_RoomBill(rbUpdate);
+			response.sendRedirect(request.getContextPath() + "/bill-for-rent");
+		}
+		else {
+			if(isExisted == 1) {
+				request.setAttribute("message_insert_customer_deny", "Không thể thêm khách hàng do bị trùng thông tin trong phiếu thuê phòng.");
+				listRooms(request, response);
+			}
+			else if(getCurrentCustomer >= getMaxCustomer) {
+				request.setAttribute("message_insert_customer_deny", "Không thể thêm khách hàng do đã vượt quá số khách tối đa.");
+				listRooms(request, response);
+			}
+		}
+		
 		
 	}
 	
-	private void updateCustomer(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+	private void updateCustomer(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
 		String customerId = request.getParameter("customerId");
 		String customerName = request.getParameter("customerName");
 		String customerAddress = request.getParameter("customerAddress");
@@ -241,12 +257,21 @@ private String getRoleGroupOfUser(HttpServletRequest request) {
 		getValue.setCustomerIdentityCode(customerIdentityCode);
 		getValue.setTypeCustomerId(typeCustomerId);
 		
-		customer_RoomBillDetailDAO.updateCustomer(getValue);
+		Integer isExisted = customer_RoomBillDetailDAO.isExistedCustomerOnRoomBill(roomBillId, getValue);
 		
-		RoomBill rbUpdate = new RoomBill();
-		rbUpdate.setRoomBillId(roomBillId);
-		roomBillDAO.updatePriceRoom_RoomBill(rbUpdate);
-		response.sendRedirect(request.getContextPath() + "/bill-for-rent");
+		if(isExisted == 0) {
+			customer_RoomBillDetailDAO.updateCustomer(getValue);
+			
+			RoomBill rbUpdate = new RoomBill();
+			rbUpdate.setRoomBillId(roomBillId);
+			roomBillDAO.updatePriceRoom_RoomBill(rbUpdate);
+			response.sendRedirect(request.getContextPath() + "/bill-for-rent");
+		}
+		else {
+			request.setAttribute("message_insert_customer_deny", "Không thể cập nhật khách hàng do bị trùng thông tin trong phiếu thuê phòng.");
+			listRooms(request, response);
+		}
+		
 	}
 	
 	private void deleteCustomer(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
@@ -267,7 +292,61 @@ private String getRoleGroupOfUser(HttpServletRequest request) {
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doGet(request, response);
+		HttpSession session = request.getSession();
+		User user = (User) session.getAttribute("user");
+		
+		if(user == null) {
+			response.sendRedirect(request.getContextPath() +"/login");
+			return;
+		}
+		
+		String roleGroupId = getRoleGroupOfUser(request);
+		
+		int permissionFlag = 0;
+		try {
+			permissionFlag = getPermission(roleGroupId,SCREEN);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(permissionFlag == 1) {
+			try {
+				String action = request.getParameter("ACTION");
+				if(action==null) action = "LIST";
+				
+				switch(action) {
+				case "INSERT_ROOMBILL":
+					insertRoomBill(request, response);
+					break;
+				case "DELETE_ROOMBILL":
+					deleteRoomBill(request, response);
+					break;
+				case "UPDATE_ROOMBILL":
+					updateRoomBill(request, response);
+					break;
+				case "INSERT_CUSTOMER":
+					insertCustomer(request, response);
+					break;
+				case "UPDATE_CUSTOMER":
+					updateCustomer(request, response);
+					break;
+				case "DELETE_CUSTOMER":
+					deleteCustomer(request, response);
+					break;
+				case "LIST":
+					listRooms(request, response);
+					break;
+				}
+				
+	
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else 
+			response.sendRedirect(request.getContextPath() + "/error");
 	}
 
 }
