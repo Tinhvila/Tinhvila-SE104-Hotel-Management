@@ -2,6 +2,7 @@
     pageEncoding="UTF-8"%>
     
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>  
 
 <!DOCTYPE html>
 <html lang="en">
@@ -273,7 +274,7 @@
 								                                </div>
 								                                <div class="mx-1 my-3" style="text-align: left;">
 								                                	<p style="font-size: 20px; font-weight: bold;">Danh sách khách hàng</p>
-								                                	<p>Đơn giá 1 ngày dự tính: <span style="color: red; font-weight:bold;">${roomBill.roomPriceDay}đ</span></p>
+								                                	<p>Đơn giá 1 ngày dự tính: <span style="color: red; font-weight:bold;"><fmt:formatNumber type="number" groupingUsed="true" value="${roomBill.roomPriceDay}" />đ</span></p>
 								                                	<p class="text-end">Số khách:<c:forEach var="listCountCustomer" items="${listCountCustomer}">
 											                                <c:if test="${listCountCustomer.roomBillId == roomBill.roomBillId}">
 											                                <c:choose>
@@ -366,7 +367,7 @@
 									                                </div>
 									                                <div class="mx-3 my-3" style="text-align: left;">
 									                                	<p style="font-size: 20px; font-weight: bold;">Danh sách khách hàng</p>
-									                                	<p>Đơn giá 1 ngày dự tính: <span style="color: red; font-weight:bold;">${roomBill.roomPriceDay}đ</span></p>
+									                                	<p>Đơn giá 1 ngày dự tính: <span style="color: red; font-weight:bold;"><fmt:formatNumber type="number" groupingUsed="true" value="${roomBill.roomPriceDay}" />đ</span></p>
 									                                	<div class="d-flex justify-content-between align-center">
 										                                	<button type="button" class="btn btn-info" data-bs-dismiss="modal" data-bs-toggle="modal"
 										                                	data-bs-target="#<%=j %>insertCustomerCategory">Thêm khách hàng</button>

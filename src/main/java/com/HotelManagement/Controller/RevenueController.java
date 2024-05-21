@@ -2,10 +2,10 @@ package com.HotelManagement.Controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.NumberFormat;
+
 
 import java.util.List;
-import java.util.Locale;
+
 
 import javax.annotation.Resource;
 import javax.servlet.RequestDispatcher;
@@ -204,9 +204,7 @@ private String getRoleGroupOfUser(HttpServletRequest request) {
 			for(int i = 0; i < listRevenue.size(); i++) {
 				totalPriceRevenue = totalPriceRevenue + listRevenue.get(i).getRevenueValue();
 			}
-		Locale locale = new Locale("vi", "VN");
-		NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
-		request.setAttribute("totalPriceRevenue", numberFormat.format(totalPriceRevenue));
+		request.setAttribute("totalPriceRevenue", totalPriceRevenue);
 		request.setAttribute("getAllRevenueList", listRevenue);
 		session.setAttribute("getAllRevenueList", listRevenue);
 		request.setAttribute("monthResponse", month);

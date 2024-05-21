@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
 import com.HotelManagement.DAO.ParameterDAO;
+import com.HotelManagement.DAO.RoomBillDAO;
 import com.HotelManagement.DAO.SurchargeRateDAO;
 import com.HotelManagement.DAO.TypeOfCustomerDAO;
 import com.HotelManagement.DAO.TypeOfRoomDAO;
@@ -38,6 +39,7 @@ public class SettingController extends HttpServlet {
 	private SurchargeRateDAO surchargeRateDAO;
 	private ParameterDAO parameterDAO;
 	private UserDAO userDAO;
+	private RoomBillDAO roomBillDAO;
 	
 	@Resource(name="jdbc/hotel_db")
 	private DataSource dataSource;
@@ -51,6 +53,7 @@ public class SettingController extends HttpServlet {
 			typeOfCustomerDAO = new TypeOfCustomerDAO(dataSource);
 			surchargeRateDAO = new SurchargeRateDAO(dataSource);
 			parameterDAO = new ParameterDAO(dataSource);
+			roomBillDAO = new RoomBillDAO(dataSource);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -164,6 +167,7 @@ private void updateParameter(HttpServletRequest request, HttpServletResponse res
 		SurchargeRate sur = new SurchargeRate(Integer.valueOf(orderOfCustomer),Float.valueOf(value)); 
 		
 		surchargeRateDAO.updateSurchargeRate(sur);
+		roomBillDAO.autoUpdatePriceRoom_RoomBill();
 		response.sendRedirect(request.getContextPath() + "/setting");
 	}
 
@@ -192,6 +196,7 @@ private void updateParameter(HttpServletRequest request, HttpServletResponse res
 		
 		TypeCustomer typeCustomer = new TypeCustomer(typeCustomerId, typeCustomerName, Float.valueOf(typeCustomerChargeRate));
 		typeOfCustomerDAO.updateTypeCustomer(typeCustomer);
+		roomBillDAO.autoUpdatePriceRoom_RoomBill();
 		response.sendRedirect(request.getContextPath() + "/setting");
 	}
 
@@ -218,6 +223,7 @@ private void updateParameter(HttpServletRequest request, HttpServletResponse res
 		
 		TypeRoom typeRoom = new TypeRoom(typeRoomId,typeRoomName,Integer.valueOf(typeRoomPrice));
 		typeOfRoomDAO.updateTypeRoom(typeRoom);
+		roomBillDAO.autoUpdatePriceRoom_RoomBill();
 		response.sendRedirect(request.getContextPath() + "/setting");
 	}
 

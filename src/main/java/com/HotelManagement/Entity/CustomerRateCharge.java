@@ -3,7 +3,16 @@ package com.HotelManagement.Entity;
 public class CustomerRateCharge {
 	private String customerId;
 	private String typeCustomerId;
+	private String roomBillId;
 	private float customerChargeRate;
+	
+	public String getRoomBillId() {
+		return roomBillId;
+	}
+	public void setRoomBillId(String roomBillId) {
+		this.roomBillId = roomBillId;
+	}
+	
 	public CustomerRateCharge() {
 		super();
 	}
