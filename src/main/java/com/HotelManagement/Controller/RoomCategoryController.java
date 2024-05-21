@@ -21,6 +21,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.HotelManagement.DAO.RoomBillDAO;
 import com.HotelManagement.DAO.RoomCategoryDAO;
 import com.HotelManagement.DAO.TypeOfRoomDAO;
 import com.HotelManagement.DAO.UserDAO;
@@ -37,6 +38,7 @@ public class RoomCategoryController extends HttpServlet {
 	private RoomCategoryDAO roomDAO;
 	private TypeOfRoomDAO typeOfRoomDAO;
 	private UserDAO userDAO;
+	private RoomBillDAO roomBillDAO;
 	
 	private final String SCREEN = "QuyenDanhMucPhong";
 	
@@ -50,6 +52,7 @@ public class RoomCategoryController extends HttpServlet {
 			userDAO = new UserDAO(dataSource);
 			roomDAO = new RoomCategoryDAO(dataSource);	
 			typeOfRoomDAO = new TypeOfRoomDAO(dataSource);
+			roomBillDAO = new RoomBillDAO(dataSource);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -139,6 +142,7 @@ private String getRoleGroupOfUser(HttpServletRequest request) {
 		room.setNoteRoom(noteRoom);
 		
 		roomDAO.updateRoom(room);
+		roomBillDAO.autoUpdatePriceRoom_RoomBill();
 		response.sendRedirect(request.getContextPath() + "/room-category");
 				
 	}

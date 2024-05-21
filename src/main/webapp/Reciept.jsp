@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
     
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>  
 
 <!DOCTYPE html>
 <html>
@@ -245,7 +245,7 @@
 					                                        					<td>${listReceiptDetail.receiptRoomBillInfo.roomDateRent}</td>
 					                                        					<td>${listReceiptDetail.receiptRoomBillInfo.roomDateReturn}</td>
 					                                        					<td>${listReceiptDetail.countRoomDayRent}</td>
-					                                        					<td>${listReceiptDetail.receiptTotalValue}</td>
+					                                        					<td><fmt:formatNumber type="number" groupingUsed="true" value="${listReceiptDetail.receiptTotalValue}" />đ</td>
 					                                        				</tr>
 				                                        				</c:if>
 				                                        				</c:forEach>
@@ -255,7 +255,7 @@
 				                                        	<div class="mt-3">
 				                                        		<c:forEach var="listReceiptTotalValue" items="${listReceiptTotalValue}">
 				                                        			<c:if test="${listReceiptTotalValue.receiptId == listAllReceipt.receiptId}">
-				                                        				<p style="text-align: right;">Thành tiền: <span style="color: red; font-weight: bold;">${listReceiptTotalValue.receiptPrice}</span></p>
+				                                        				<p style="text-align: right;">Thành tiền: <span style="color: red; font-weight: bold;"><fmt:formatNumber type="number" groupingUsed="true" value="${listReceiptTotalValue.receiptPrice}" />đ</span></p>
 				                                        			</c:if>
 				                                        		</c:forEach>
 				                                        	</div>
@@ -506,7 +506,7 @@
 						                                </div>
 						                                <div class="mx-1 my-3" style="text-align: left;">
 						                                	<p style="font-size: 20px; font-weight: bold;">Danh sách khách hàng</p>
-						                                	<p>Đơn giá 1 ngày dự tính: <span style="color: red; font-weight:bold;">${roomBill.roomPriceDay}đ</span></p>
+						                                	<p>Đơn giá 1 ngày dự tính: <span style="color: red; font-weight:bold;"><fmt:formatNumber type="number" groupingUsed="true" value="${roomBill.roomPriceDay}" />đ</span></p>
 						                                	<p class="text-end">Số khách:<c:forEach var="listCountCustomer" items="${listCountCustomer}">
 									                                <c:if test="${listCountCustomer.roomBillId == roomBill.roomBillId}">
 									                                <c:choose>

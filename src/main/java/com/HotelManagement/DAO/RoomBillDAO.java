@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 
 import com.HotelManagement.Entity.RoomBill;
 import com.HotelManagement.Entity.TypeCustomerTag;
+import com.HotelManagement.Entity.CountCustomerRoomBill;
 import com.HotelManagement.Entity.CustomerRateCharge;
 import com.HotelManagement.Entity.Room;
 
@@ -136,9 +137,9 @@ public class RoomBillDAO {
 				initialPrice = rsGetCountCustomerCheck.getInt(4);
 				getChargeRateCount = rsGetCountCustomerCheck.getFloat(6);
 			}
-			System.out.println("Count: " + getCount);
-			System.out.println("Customer charge rate: " + getChargeRateCount);
-			System.out.println("Initial price: " + initialPrice);
+			//System.out.println("Count: " + getCount);
+			//System.out.println("Customer charge rate: " + getChargeRateCount);
+			//System.out.println("Initial price: " + initialPrice);
 			
 			preStmtGetCustomerCheck = conn.prepareStatement(sqlGetCustomerCheck);
 			preStmtGetCustomerCheck.setString(1,  rbUpdate.getRoomBillId());
@@ -165,7 +166,7 @@ public class RoomBillDAO {
 			}
 			//Calculate for the count of customer
 			finalPricePerDay = finalPricePerDay + initialPrice*(getChargeRateCount - 1);
-			System.out.println("Final price: " + finalPricePerDay);
+			//System.out.println("Final price: " + finalPricePerDay);
 			
 			preStmtUpdatePrice = conn.prepareStatement(sqlUpdatePrice);
 			preStmtUpdatePrice.setFloat(1, finalPricePerDay);
@@ -186,11 +187,41 @@ public class RoomBillDAO {
 		}	
 	}
 	
-	/*
-	public void updatePriceRoom_RoomBill(Room rUpdate) {
+	//Automatically update price room upon contact of selection, insert customer, update customer or delete customer for all unpaid bill upon change
+	//of type room, constraint of maximum customer in unpaid bill, customer no. payment and type of customer
+	public void autoUpdatePriceRoom_RoomBill() throws SQLException {
+		
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		String sqlGetUnpaidRoomBill = "SELECT MaPhieuThue FROM PHIEUTHUEPHONG WHERE TinhTrangTraTien = 0;";
+		
+		try {
+			conn = dataSource.getConnection();
+			stmt = conn.createStatement();
+			List<RoomBill> getUnpaidRoomBill = new ArrayList<>();
+			
+			rs = stmt.executeQuery(sqlGetUnpaidRoomBill);
+			while(rs.next()) {
+				RoomBill getIndex = new RoomBill();
+				getIndex.setRoomBillId(rs.getString(1));
+				getUnpaidRoomBill.add(getIndex);
+			}
+			
+			for(int i = 0; i < getUnpaidRoomBill.size(); i++) {
+				updatePriceRoom_RoomBill(getUnpaidRoomBill.get(i));
+			}
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close(conn, stmt, rs);
+		}
+		
 		
 	}
-	*/
+	
 	public String getRoomId(String roomName) throws SQLException {
 		String roomId = "";
 		

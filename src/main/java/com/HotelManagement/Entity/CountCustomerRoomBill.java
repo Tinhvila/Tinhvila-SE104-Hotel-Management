@@ -3,10 +3,18 @@ package com.HotelManagement.Entity;
 public class CountCustomerRoomBill {
 	private String roomBillId;
 	private int countCustomer;
-	public CountCustomerRoomBill(String roomBillId, int countCustomer) {
+	private float initialPrice;
+	public float getInitialPrice() {
+		return initialPrice;
+	}
+	public void setInitialPrice(float initialPrice) {
+		this.initialPrice = initialPrice;
+	}
+	public CountCustomerRoomBill(String roomBillId, int countCustomer, float initialPrice) {
 		super();
 		this.roomBillId = roomBillId;
 		this.countCustomer = countCustomer;
+		this.initialPrice = initialPrice;
 	}
 	public CountCustomerRoomBill() {
 		

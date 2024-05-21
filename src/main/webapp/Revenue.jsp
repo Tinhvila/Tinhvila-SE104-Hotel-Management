@@ -2,6 +2,7 @@
     pageEncoding="UTF-8"%>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>  
 
 <!DOCTYPE html>
 <html lang="en">
@@ -153,7 +154,7 @@
 				                                <td>${getAllRevenueList.month}</td>
 				                                <td>${getAllRevenueList.year}</td>
 				                                <td>${getAllRevenueList.typeRoomName}</td>
-				                                <td>${getAllRevenueList.revenueValue}</td>
+				                                <td><fmt:formatNumber type="number" groupingUsed="true" value="${getAllRevenueList.revenueValue}" /></td>
 				                                <td>${getAllRevenueList.typeRoomRevenueRate}%</td>
 				                            </tr>
 				                        	<%i++;%>
@@ -166,7 +167,7 @@
                 </div>
                 <div class="col-1"></div>
                 <div class="col-5 p-0 d-flex flex-column mh-100">
-                    <h5 class="text-center mb-4  bg-white p-2 rounded-3 shadowCustom">Tổng doanh thu: ${requestScope.totalPriceRevenue}đ</h5>
+                    <h5 class="text-center mb-4  bg-white p-2 rounded-3 shadowCustom">Tổng doanh thu: <fmt:formatNumber type="number" groupingUsed="true" value="${requestScope.totalPriceRevenue}" />đ</h5>
                     <form action="<%=request.getContextPath()%>/revenue"
                         class="white bg- p-2 rounded-3 shadowCustom bg-white" method="post">
                         <input type="hidden" name="ACTION" value="SEARCH"/>
