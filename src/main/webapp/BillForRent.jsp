@@ -130,6 +130,14 @@
             </div>
 
             <div class="container">
+            	<div class="row">
+            		<c:if test="${not empty message_insert_customer_deny}">
+	                    <div class="alert alert-danger alert-dismissible fw-bold text-danger fade show" role="alert">
+						  ${message_insert_customer_deny}
+						  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+						</div>
+                    </c:if>
+            	</div>
                 <div class="row">
                     <div class="col-7 h-100 mx-0 px-0">
                         <div id="bill-rent-setting" class="h-100 rounded overflow-auto shadowCustom bg-white rounded-3 px-1">
@@ -241,7 +249,7 @@
 					                                                aria-label="Close"></button>
 					                                        </div>
 					                                        <div class="modal-body">
-					                                            <p style="text-align: left">Bạn có chắc chắn muốn xóa phiếu thuê phòng ${roomBill.roomBillId} ?</p>
+					                                            <p style="text-align: left">Bạn có chắc chắn muốn xóa phiếu thuê phòng này không?</p>
 					                                            <p style="color: red; font-weight:bold; text-align: left;" class="pt-2">Lưu ý: Nếu có khách hàng trong phiếu thuê phòng đó
 					                                            thì tất cả các khách hàng cũng sẽ bị xóa theo!</p>
 					                                        </div>
@@ -275,18 +283,23 @@
 								                                <div class="mx-1 my-3" style="text-align: left;">
 								                                	<p style="font-size: 20px; font-weight: bold;">Danh sách khách hàng</p>
 								                                	<p>Đơn giá 1 ngày dự tính: <span style="color: red; font-weight:bold;"><fmt:formatNumber type="number" groupingUsed="true" value="${roomBill.roomPriceDay}" />đ</span></p>
-								                                	<p class="text-end">Số khách:<c:forEach var="listCountCustomer" items="${listCountCustomer}">
+								                                	<p class="text-end">Số khách:
+								                                	<c:set var="tag" value="0" />
+								                                	<c:forEach var="listCountCustomer" items="${listCountCustomer}">
 											                                <c:if test="${listCountCustomer.roomBillId == roomBill.roomBillId}">
+											                                <c:set var="tag" value="1" />
 											                                <c:choose>
 											                                	<c:when test="${not empty listCountCustomer.countCustomer}">
 											                                		${listCountCustomer.countCustomer}
 											                                	</c:when>
-											                                	<c:otherwise>0</c:otherwise>
 											                                	</c:choose>
 											                                </c:if>
 											                             
-											                             </c:forEach>/
-											                             <c:out value="${requestScope.getMaxCustomerConstraint}" />
+											                             </c:forEach>
+											                             <c:if test="${tag==0}">0</c:if>
+											                             <c:if test="${roomBill.roomPaymentStatus == 0}">/
+											                             	<c:out value="${requestScope.getMaxCustomerConstraint}" />
+											                             </c:if>
 																	</p>
 								                                </div>
 								                                <div class="mx-3 overflow-auto" style="height: 200px;">
@@ -337,7 +350,7 @@
 					                            	<div class="modal-dialog modal-lg">
 					                            		<div class="modal-content">
 					                            			<div class="modal-header">
-					                            				<h1 class="modal-title fs-5" id="updateBillRoomLabel">Cập nhật thông tin phiếu thuê phòng ${roomBill.roomBillId}</h1>
+					                            				<h1 class="modal-title fs-5" id="updateBillRoomLabel">Cập nhật thông tin phiếu thuê phòng</h1>
 					                            				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					                            			</div>
 					                            			<div class="modal-body">
@@ -372,11 +385,14 @@
 										                                	<button type="button" class="btn btn-info" data-bs-dismiss="modal" data-bs-toggle="modal"
 										                                	data-bs-target="#<%=j %>insertCustomerCategory">Thêm khách hàng</button>
 										                                	<p>Số khách:
+										                                	<c:set var="tag" value="0" />
 										                                	<c:forEach var="listCountCustomer" items="${listCountCustomer}">
 												                                <c:if test="${listCountCustomer.roomBillId == roomBill.roomBillId}">
+												                                	<c:set var="tag" value="1" />
 												                                	${listCountCustomer.countCustomer}
 												                                </c:if>
 												                            </c:forEach>
+												                            <c:if test="${tag==0}">0</c:if>
 										                                	/
 											                                <c:out value="${requestScope.getMaxCustomerConstraint}" />
 										                                	</p>
@@ -474,7 +490,7 @@
 					                            	<div class="modal-dialog">
 					                            		<div class="modal-content">
 					                            			<div class="modal-header">
-					                            				<h1 class="modal-title fs-5" id="updateCustomerLabel">Cập nhật khách hàng ${listCustomer.customerId}</h1>
+					                            				<h1 class="modal-title fs-5" id="updateCustomerLabel">Cập nhật khách hàng</h1>
 					                            				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					                            			</div>
 					                            			<div class="modal-body">
@@ -493,7 +509,7 @@
 									                                    </div>
 									                                    <div class="m-3">
 									                                    	<label for="label-customer-identity" class="form-label">CMND</label>
-									                            			<input id="label-customer-identity" name="customerIdentityCode" class="form-control" value="${listCustomer.customerIdentityCode}" required>
+									                            			<input id="label-customer-identity" name="customerIdentityCode" class="form-control" value="${listCustomer.customerIdentityCode}" required minlength="10" maxlength="12" pattern="[0-9]*">
 									                                    </div>
 									                                    <div class="m-3">
 									              							<label for="kind-customerType" class="col-form-label">Loại khách</label>
@@ -559,7 +575,7 @@
 					                            				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					                            			</div>
 					                            			<div class="modal-body">
-					                            				<form action="<%=request.getContextPath()%>/bill-for-rent">
+					                            				<form action="<%=request.getContextPath()%>/bill-for-rent" method="post">
 					                            					<input type="hidden" name="ACTION" value="INSERT_CUSTOMER" />
 					                            					<input type="hidden" name="roomBillId" value="${roomBill.roomBillId}" />
 						                            				<div class="mx-1" style="text-align: left;">
@@ -573,7 +589,7 @@
 									                                    </div>
 									                                    <div class="m-3">
 									                                    	<label for="label-customer-identity" class="form-label">CMND</label>
-									                            			<input id="label-customer-identity" name="customerIdentityCode" class="form-control" value="" required>
+									                            			<input id="label-customer-identity" name="customerIdentityCode" class="form-control" value="" required minlength="10" maxlength="12" pattern="[0-9]*">
 									                                    </div>
 									                                    <div class="m-3">
 									              							<label for="kind-customerType" class="col-form-label">Loại khách</label>
