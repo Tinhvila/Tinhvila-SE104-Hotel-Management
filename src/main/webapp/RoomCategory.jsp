@@ -125,10 +125,19 @@
                 <h1 style="margin: 0;">Danh mục phòng</h1>
                 <h1 style="margin: 0;">Xin chào, <c:out value="${sessionScope.user.fullName}" /></h1>
             </div>
+            
+            <c:if test="${not empty message_delete_deny}">
+	                    <div class="alert alert-danger alert-dismissible fw-bold text-danger fade show " role="alert">
+						  ${message_delete_deny}
+						  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+						</div>
+                    </c:if>
 
             <div class="row mx-0">
                 <div id="room-category" class=" h-full rounded overflow-auto shadowCustom  bg-white col-8 rounded-3 ">
                     <table class="table table-hover">
+                    
+                    
                     <thead>
                             <tr>
                                 <th scope="col">STT</th>

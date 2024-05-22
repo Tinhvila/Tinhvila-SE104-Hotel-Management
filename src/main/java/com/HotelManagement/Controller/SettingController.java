@@ -2,6 +2,7 @@ package com.HotelManagement.Controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -14,13 +15,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
+import com.HotelManagement.DAO.Customer_RoomBillDetailDAO;
 import com.HotelManagement.DAO.ParameterDAO;
 import com.HotelManagement.DAO.RoomBillDAO;
+import com.HotelManagement.DAO.RoomCategoryDAO;
 import com.HotelManagement.DAO.SurchargeRateDAO;
 import com.HotelManagement.DAO.TypeOfCustomerDAO;
 import com.HotelManagement.DAO.TypeOfRoomDAO;
 import com.HotelManagement.DAO.UserDAO;
+import com.HotelManagement.Entity.Customer_RoomBillDetail;
 import com.HotelManagement.Entity.Parameter;
+import com.HotelManagement.Entity.Room;
 import com.HotelManagement.Entity.SurchargeRate;
 import com.HotelManagement.Entity.TypeCustomer;
 import com.HotelManagement.Entity.TypeRoom;
@@ -40,6 +45,8 @@ public class SettingController extends HttpServlet {
 	private ParameterDAO parameterDAO;
 	private UserDAO userDAO;
 	private RoomBillDAO roomBillDAO;
+	private RoomCategoryDAO roomCategoryDAO;
+	private Customer_RoomBillDetailDAO customer_RoomBillDetailDAO; 
 	
 	@Resource(name="jdbc/hotel_db")
 	private DataSource dataSource;
@@ -48,6 +55,8 @@ public class SettingController extends HttpServlet {
 	public void init() throws ServletException {
 		super.init();
 		try {
+			customer_RoomBillDetailDAO = new Customer_RoomBillDetailDAO(dataSource);
+			roomCategoryDAO = new RoomCategoryDAO(dataSource);
 			userDAO = new UserDAO(dataSource);
 			typeOfRoomDAO = new TypeOfRoomDAO(dataSource);
 			typeOfCustomerDAO = new TypeOfCustomerDAO(dataSource);
@@ -148,8 +157,20 @@ private void updateParameter(HttpServletRequest request, HttpServletResponse res
 		String papramName = request.getParameter("papramName");
 		String paramValue = request.getParameter("paramValue");
 		
+		
+		
 		Parameter par = new Parameter(papramName, Float.valueOf(paramValue));
 		parameterDAO.updateParam(par);
+		int numberOfRecords = surchargeRateDAO.getNumberOfRecords(); 
+		if(numberOfRecords < Integer.valueOf(paramValue)) {
+			for(int i = numberOfRecords + 1; i <= Integer.valueOf(paramValue) ; i++) {
+				int id = i;
+				float value = 1;
+				SurchargeRate sur = new SurchargeRate(id, value);
+				surchargeRateDAO.addSurchargeRate(sur);
+			}
+		}
+		
  	
 		response.sendRedirect(request.getContextPath() + "/setting");
 }
@@ -171,70 +192,172 @@ private void updateParameter(HttpServletRequest request, HttpServletResponse res
 		response.sendRedirect(request.getContextPath() + "/setting");
 	}
 
-	private void addSurchargeRate(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+	private void addSurchargeRate(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException, ServletException {
 		String orderOfCustomer = request.getParameter("orderOfCustumer");
 		String value = request.getParameter("surchargeRate");
 		SurchargeRate sur = new SurchargeRate(Integer.valueOf(orderOfCustomer),Float.valueOf(value)); 
 		
-		surchargeRateDAO.addSurchargeRate(sur);
+		int flag = 0;
+		List<SurchargeRate> listSur = surchargeRateDAO.getAllSurchargeRate();
 		
-		response.sendRedirect(request.getContextPath() + "/setting");
+		for(SurchargeRate sur2 : listSur) {
+			if(sur2.getOrderOfCustomer() == Integer.valueOf(orderOfCustomer)) {
+				flag = 1;
+				break;
+			}
+		}
+				
+		if(flag == 1) {
+			request.setAttribute("message_error", "Khách thứ " + Integer.valueOf(orderOfCustomer) + " đã tồn tại, không thể thêm.");
+			listInfoRegulation(request,response);
+		}
+		
+		else {
+			
+			surchargeRateDAO.addSurchargeRate(sur);
+			
+			response.sendRedirect(request.getContextPath() + "/setting");
+		}
 	}
 
-	private void deleteTypeCustomer(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+	private void deleteTypeCustomer(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException, ServletException {
 		
 		String typeCustomerId = request.getParameter("typeCustomerId");
-		typeOfCustomerDAO.deleteTypeCustomer(typeCustomerId);
 		
-		response.sendRedirect(request.getContextPath() + "/setting");
+		int flag = 0;
+		List<Customer_RoomBillDetail> cr = customer_RoomBillDetailDAO.getCustomerInRoomBill();
+		
+		for(Customer_RoomBillDetail r : cr) {
+			if(r.getTypeCustomerId().equals(typeCustomerId)) {
+				flag = 1;
+				break;
+			}
+		}
+		
+		if(flag == 1) {
+			request.setAttribute("message_error", "Đã tồn tại khách hàng thuộc loại khách này, không thể xóa!");
+			listInfoRegulation(request,response);
+		}
+		else {
+			
+			typeOfCustomerDAO.deleteTypeCustomer(typeCustomerId);
+			response.sendRedirect(request.getContextPath() + "/setting");
+		}
+		
 	}
 
-	private void updateTypeCustomer(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+	private void updateTypeCustomer(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException, ServletException {
 		String typeCustomerName = request.getParameter("typeCustomerName");
 		String typeCustomerChargeRate = request.getParameter("typeCustomerChargeRate");
 		String typeCustomerId = request.getParameter("typeCustomerId");
 		
-		TypeCustomer typeCustomer = new TypeCustomer(typeCustomerId, typeCustomerName, Float.valueOf(typeCustomerChargeRate));
-		typeOfCustomerDAO.updateTypeCustomer(typeCustomer);
-		roomBillDAO.autoUpdatePriceRoom_RoomBill();
-		response.sendRedirect(request.getContextPath() + "/setting");
+		
+			
+			TypeCustomer typeCustomer = new TypeCustomer(typeCustomerId, typeCustomerName, Float.valueOf(typeCustomerChargeRate));
+			typeOfCustomerDAO.updateTypeCustomer(typeCustomer);
+			roomBillDAO.autoUpdatePriceRoom_RoomBill();
+			response.sendRedirect(request.getContextPath() + "/setting");
+		
 	}
 
-	private void addTypeCustomer(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+	private void addTypeCustomer(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException, ServletException {
 		String typeCustomerName = request.getParameter("typeCustomerName");
 		String typeCustomerChargeRate = request.getParameter("typeCustomerChargeRate");
 		
-		typeOfCustomerDAO.addTypeCustomer(typeCustomerName,typeCustomerChargeRate);
-		response.sendRedirect(request.getContextPath() + "/setting");
+		int flag = 0;
+		List<TypeCustomer> listTypeOfCustomers = typeOfCustomerDAO.getAllTypeCustomer();
+		
+		
+		for(TypeCustomer tc : listTypeOfCustomers) {
+			if(tc.getTypeCustomerName().equals(typeCustomerName)) {
+				flag = 1;
+				break;
+			}
+		}
+		
+		if(flag == 1) {
+			request.setAttribute("message_error", "Tên của loại khách đã tồn tại, vui lòng thêm tên loại khách khác.");
+			listInfoRegulation(request,response);
+		}
+		
+		else {
+			typeOfCustomerDAO.addTypeCustomer(typeCustomerName,typeCustomerChargeRate);
+			response.sendRedirect(request.getContextPath() + "/setting");			
+		}
 	}
 
 	
 
-	private void deleteTypeRoom(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+	private void deleteTypeRoom(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
 		String typeRoomId = request.getParameter("typeRoomId");
-		typeOfRoomDAO.deleteTypeRoom(typeRoomId);
-		response.sendRedirect(request.getContextPath() + "/setting");
+		
+		TypeRoom typeRoom = typeOfRoomDAO.getTypeRoomById(typeRoomId);
+		
+		int flag = 0;
+		
+		List<Room> listRooms = roomCategoryDAO.getAllRooms();
+		
+		for(Room r : listRooms) {
+			if(r.getTypeOfRoom().equals(typeRoom.getNameTypeRoom())) {
+				flag =1;
+				break;
+			}
+		}
+		
+		
+		if(flag == 1) {
+			request.setAttribute("message_error", "Đã có phòng thuộc loại phòng này, không thể xóa!");
+			listInfoRegulation(request, response);
+		}
+		
+		else {
+			
+			typeOfRoomDAO.deleteTypeRoom(typeRoomId);
+			response.sendRedirect(request.getContextPath() + "/setting");
+		}
 	}
+		
 
-	private void updateTypeRoom(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+	private void updateTypeRoom(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
 		String typeRoomId = request.getParameter("typeRoomId");
 		String typeRoomName = request.getParameter("typeRoomName");
 		String typeRoomPrice = request.getParameter("typeRoomPrice");
 		
-		TypeRoom typeRoom = new TypeRoom(typeRoomId,typeRoomName,Integer.valueOf(typeRoomPrice));
-		typeOfRoomDAO.updateTypeRoom(typeRoom);
-		roomBillDAO.autoUpdatePriceRoom_RoomBill();
-		response.sendRedirect(request.getContextPath() + "/setting");
+			
+			TypeRoom typeRoom = new TypeRoom(typeRoomId,typeRoomName,Integer.valueOf(typeRoomPrice));
+			typeOfRoomDAO.updateTypeRoom(typeRoom);
+			roomBillDAO.autoUpdatePriceRoom_RoomBill();
+			response.sendRedirect(request.getContextPath() + "/setting");
+		
+		
 	}
 
-	private void addTypeRoom(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+	private void addTypeRoom(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
 		
 		String typeRoomName = request.getParameter("typeRoomName");
 		String typeRoomPrice = request.getParameter("typeRoomPrice");
 		TypeRoom typeRoom = new TypeRoom(typeRoomName,Integer.valueOf(typeRoomPrice));
 		
-		typeOfRoomDAO.addTypeRoom(typeRoom);
-		response.sendRedirect(request.getContextPath() + "/setting");
+		int flag = 0;
+		List<TypeRoom> listTypeOfRooms = typeOfRoomDAO.getAllTypeRooms();
+		
+		for(TypeRoom tr : listTypeOfRooms) {
+			if(tr.getNameTypeRoom().equals(typeRoomName)) {
+				flag = 1;
+				break;
+			}
+		}
+		
+		if(flag == 1) {
+			request.setAttribute("message_error", "Tên phòng đã tồn tại, vui lòng thêm tên phòng khác.");
+			listInfoRegulation(request,response);
+		}
+		
+		else {
+			
+			typeOfRoomDAO.addTypeRoom(typeRoom);
+			response.sendRedirect(request.getContextPath() + "/setting");
+		}
 		
 	}
 	
@@ -244,10 +367,14 @@ private void updateParameter(HttpServletRequest request, HttpServletResponse res
 		List<TypeCustomer> listTypeOfCustomers = typeOfCustomerDAO.getAllTypeCustomer();
 		List<SurchargeRate> listSurcharge = surchargeRateDAO.getAllSurchargeRate();
 		List<Parameter> listParams = parameterDAO.getAllSurchargeRate();
+		int numberOfRecords = (int)parameterDAO.getValue(); 
+		System.out.println(numberOfRecords);
 		request.setAttribute("listTypeRooms", listTypeOfRooms);
 		request.setAttribute("listTypeOfCustomers", listTypeOfCustomers);
 		request.setAttribute("listSurcharge", listSurcharge);
 		request.setAttribute("listParams", listParams);
+		request.setAttribute("numberOfRecords", numberOfRecords);
+		
 		
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/Setting.jsp");
 		dispatcher.forward(request, response);

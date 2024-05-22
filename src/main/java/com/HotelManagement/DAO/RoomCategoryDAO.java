@@ -29,7 +29,7 @@ public class RoomCategoryDAO {
 		String sql = "SELECT MaPhong, TenPhong, TenLoaiPhong, DonGia, GhiChu, TinhTrang \r\n"
 				+ "FROM phong join loaiphong on \r\n"
 				+ "phong.MaLoaiPhong = loaiphong.MaLoaiPhong \r\n"
-				+ "order by length(MaPhong)";
+				+ "order by length(TenPhong) asc, TenPhong asc";
 		
 		try {
 			conn = dataSource.getConnection();

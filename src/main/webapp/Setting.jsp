@@ -122,8 +122,14 @@
                 <h1 style="margin: 0;">Quy định</h1>
                 <h1 style="margin: 0;">Xin chào, <c:out value="${sessionScope.user.fullName}" /></h1>
             </div>
-
-                        
+	<c:if test="${not empty message_error}">
+	                    <div class="alert alert-danger alert-dismissible fw-bold text-danger fade show" role="alert">
+						  ${message_error}
+						  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+						</div>
+                    </c:if>
+    
+	                    
             <div class="row mx-0 mb-3">
                 <div class="col-6 p-0">
                     <div id="room-category"
@@ -168,7 +174,7 @@
                                                     <div class="mb-3">
                                                         <label for="recipient-name" class="col-form-label">Loại
                                                             phòng:</label>
-                                                        <input type="text" class="form-control" name="typeRoomName" id="recipient-name" value="${typeRoom.nameTypeRoom}">
+                                                        <input type="text" class="form-control" readonly name="typeRoomName" id="recipient-name" value="${typeRoom.nameTypeRoom}">
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="recipient-name" class="col-form-label">Đơn
@@ -301,7 +307,7 @@
                                                     <div class="mb-3">
                                                         <label for="recipient-name" class="col-form-label">Loại
                                                             khách:</label>
-                                                        <input type="text" class="form-control" name="typeCustomerName" id="recipient-name" value="${typeCustomer.typeCustomerName}">
+                                                        <input type="text" class="form-control" readonly  name="typeCustomerName" id="recipient-name" value="${typeCustomer.typeCustomerName}">
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="recipient-name" class="col-form-label">Tỉ lệ phụ thu:</label>
@@ -412,15 +418,22 @@
                             <tbody>
                             
                             <c:forEach var="surcharge" items="${listSurcharge}">
+                            	
+                            	<c:if test="${surcharge.orderOfCustomer <= requestScope.numberOfRecords}">
+                            	
                             	<tr>
+                            		
+                            	
                                     <td>${surcharge.orderOfCustomer}</td>
                                     <td>${surcharge.value}</td>
                                     <td><button data-bs-toggle="modal" data-bs-target="#${surcharge.orderOfCustomer}updateModalSurcharge" id="fix-btn"
-                                            class="btn btn-info"><i class="lni lni-pencil-alt"></i></button> |
+                                            class="btn btn-info"><i class="lni lni-pencil-alt"></i></button> 
+                                            <!-- |
                                         <button data-bs-toggle="modal" data-bs-target="#${surcharge.orderOfCustomer}deleteModalSurcharge"
-                                            class="btn btn-danger"><i class="lni lni-trash-can"></i></i></button>
+                                            class="btn btn-danger"><i class="lni lni-trash-can"></i></i></button> -->
                                     </td>
                                 </tr>
+                            	</c:if>
                                 
                                 <div class="modal fade" id="${surcharge.orderOfCustomer}updateModalSurcharge" tabindex="-1"
                                     aria-labelledby="exampleModalLabel" aria-hidden="true">

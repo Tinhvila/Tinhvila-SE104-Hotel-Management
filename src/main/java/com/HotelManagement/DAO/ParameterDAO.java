@@ -21,6 +21,33 @@ public class ParameterDAO {
 		this.dataSource = dataSource;
 	}
 	
+	public float getValue() throws SQLException {
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		float Rate = 0;
+		try {
+			conn = dataSource.getConnection();
+			String sql = "select * from thamso ";
+			stmt = conn.createStatement();
+			rs = stmt.executeQuery(sql);
+			
+			while(rs.next()) {
+				
+				 Rate = rs.getFloat(2);
+				
+				
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			close(conn,stmt,rs);
+		}
+
+		return Rate;
+
+	}
+	
 	public List<Parameter> getAllSurchargeRate() throws SQLException{
 		List<Parameter> listParams = new ArrayList<Parameter>();
 	

@@ -102,6 +102,33 @@ public class SurchargeRateDAO {
 		}
 		
 	}
+	
+	public int getNumberOfRecords() throws SQLException {
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		int n = 0;
+		
+		try {
+			conn = dataSource.getConnection();
+			String sql = "select count(*) from TILEPHUTHU";
+						
+			stmt = conn.createStatement();
+		
+			rs = stmt.executeQuery(sql);
+		
+			rs.next();
+			
+			n =  rs.getInt(1);
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			close(conn,stmt,rs);
+		}
+		return n;
+	}
+
 
 	public void addSurchargeRate(SurchargeRate sur) throws SQLException {
 		

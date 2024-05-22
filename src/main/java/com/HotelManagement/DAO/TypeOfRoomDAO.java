@@ -179,4 +179,40 @@ public class TypeOfRoomDAO {
 		}
 		
 	}
+
+	public  TypeRoom getTypeRoomById(String typeRoomId) throws SQLException {
+		TypeRoom tr = null;
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		String sql = "select * from loaiphong \r\n"
+				+ " WHERE MaLoaiPhong = ? ";
+		
+		try {
+			conn = dataSource.getConnection();
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, typeRoomId);
+			rs = stmt.executeQuery();
+			
+			while(rs.next()) {
+				
+				String typeRoomID = rs.getString(1);
+				String typeRoomName = rs.getString(2);
+				int price = rs.getInt(3);
+				
+			tr = new TypeRoom(typeRoomID, typeRoomName,price);
+				
+				
+			}
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		finally {
+			close(conn,stmt,rs);
+		}
+		
+		return tr;
+	}
 }

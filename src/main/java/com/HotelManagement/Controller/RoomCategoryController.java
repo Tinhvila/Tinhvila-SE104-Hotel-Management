@@ -26,6 +26,7 @@ import com.HotelManagement.DAO.RoomCategoryDAO;
 import com.HotelManagement.DAO.TypeOfRoomDAO;
 import com.HotelManagement.DAO.UserDAO;
 import com.HotelManagement.Entity.Room;
+import com.HotelManagement.Entity.RoomBill;
 import com.HotelManagement.Entity.TypeRoom;
 import com.HotelManagement.Entity.User;
 
@@ -96,8 +97,7 @@ public class RoomCategoryController extends HttpServlet {
 					listRooms(request,response);
 					break;
 				}	
-				
-				
+					
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -121,15 +121,35 @@ private String getRoleGroupOfUser(HttpServletRequest request) {
 
 
 
-	private void deleteRoom(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+	private void deleteRoom(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
 		
 		String roomId = request.getParameter("roomId");
 		
-		roomDAO.deleteRoom(roomId);
-		response.sendRedirect(request.getContextPath() + "/room-category");
+		int flag = 0;
+		List<RoomBill> listRoomBill = roomBillDAO.getAllRoomBill();
+		
+		for(RoomBill rb : listRoomBill) {
+			if(rb.getRoomId().equals(roomId)) {
+				flag = 1;
+				break;
+			}
+				
+		}
+		
+		if(flag == 1) {
+			request.setAttribute("message_delete_deny", "Phòng đã được lập phiếu thuê, không thể xóa.");
+			listRooms(request,response);
+		}
+	
+		else {
+			
+			roomDAO.deleteRoom(roomId);
+			response.sendRedirect(request.getContextPath() + "/room-category");
+		}
+		
 	}
 
-	private void updateRoom(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+	private void updateRoom(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
 		String roomId = request.getParameter("roomId");
 		String nameRoom = request.getParameter("nameRoom");
 		String typeRoom = request.getParameter("typeRoom");
@@ -141,14 +161,33 @@ private String getRoleGroupOfUser(HttpServletRequest request) {
 		room.setTypeOfRoom(typeRoom);
 		room.setNoteRoom(noteRoom);
 		
-		roomDAO.updateRoom(room);
-		roomBillDAO.autoUpdatePriceRoom_RoomBill();
-		response.sendRedirect(request.getContextPath() + "/room-category");
+		int flag = 0;
+		
+		List<Room> listRooms = roomDAO.getAllRooms();
+		
+		for(Room r : listRooms) {
+			if(r.getRoomName().equals(nameRoom)) {
+				flag = 1;
+				break;
+			}
+		}
+		
+		if(flag == 1) {
+			request.setAttribute("message_delete_deny", "Tên phòng đã tồn tại, vui lòng đổi thành tên phòng tên khác.");
+			listRooms(request,response);
+		}
+		else {
+			
+			roomDAO.updateRoom(room);
+			roomBillDAO.autoUpdatePriceRoom_RoomBill();
+			response.sendRedirect(request.getContextPath() + "/room-category");
+		}
+		
 				
 	}
 	
 
-	private void addRoom(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+	private void addRoom(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
 		String nameRoom = request.getParameter("nameRoom");
 		String typeRoom = request.getParameter("typeRoom");
 		String noteRoom = request.getParameter("noteRoom");
@@ -160,8 +199,26 @@ private String getRoleGroupOfUser(HttpServletRequest request) {
 		room.setNoteRoom(noteRoom);
 		room.setStateRoom(status);
 		
-		roomDAO.addRoom(room);
-		response.sendRedirect(request.getContextPath() + "/room-category");
+		List<Room> listRooms = roomDAO.getAllRooms();
+		int flag = 0;
+		
+		for(Room r : listRooms) {
+			if(r.getRoomName().equals(nameRoom)) {
+				flag =1;
+				break;
+			}
+		}
+		
+		if(flag == 1) {
+			request.setAttribute("message_delete_deny", "Tên phòng đã tồn tại, vui lòng nhập tên khác.");
+			listRooms(request,response);
+		}
+		else {
+			
+			roomDAO.addRoom(room);
+			response.sendRedirect(request.getContextPath() + "/room-category");
+		}
+		
 	}
 
 	private void listRooms(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
