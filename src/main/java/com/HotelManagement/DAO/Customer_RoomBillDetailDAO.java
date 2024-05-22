@@ -335,16 +335,12 @@ public class Customer_RoomBillDetailDAO {
 			List<Customer_RoomBillDetail> getList = new ArrayList<>();
 			while(rs.next()) {
 				Customer_RoomBillDetail getIndex = new Customer_RoomBillDetail();
-				getIndex.setCustomerName(rs.getString(3));
-				getIndex.setCustomerAddress(rs.getString(4));
 				getIndex.setCustomerIdentityCode(rs.getString(5));
 				getList.add(getIndex);
 			}
 			
 			for(int i = 0; i < getList.size(); i++) {
-				if(getCustomer.getCustomerName().equals(getList.get(i).getCustomerName()) &&
-						getCustomer.getCustomerAddress().equals(getList.get(i).getCustomerAddress()) &&
-						getCustomer.getCustomerIdentityCode().equals(getList.get(i).getCustomerIdentityCode())) {
+				if(getCustomer.getCustomerIdentityCode().equals(getList.get(i).getCustomerIdentityCode())) {
 					isExisted = 1;
 					break;
 				}
