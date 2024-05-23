@@ -161,27 +161,27 @@ private String getRoleGroupOfUser(HttpServletRequest request) {
 		room.setTypeOfRoom(typeRoom);
 		room.setNoteRoom(noteRoom);
 		
-		int flag = 0;
-		
-		List<Room> listRooms = roomDAO.getAllRooms();
-		
-		for(Room r : listRooms) {
-			if(r.getRoomName().equals(nameRoom)) {
-				flag = 1;
-				break;
-			}
-		}
-		
-		if(flag == 1) {
-			request.setAttribute("message_delete_deny", "Tên phòng đã tồn tại, vui lòng đổi thành tên phòng tên khác.");
-			listRooms(request,response);
-		}
-		else {
+//		int flag = 0;
+//		
+//		List<Room> listRooms = roomDAO.getAllRooms();
+//		
+//		for(Room r : listRooms) {
+//			if(r.getRoomName().equals(nameRoom)) {
+//				flag = 1;
+//				break;
+//			}
+//		}
+//		
+//		if(flag == 1) {
+//			request.setAttribute("message_delete_deny", "Tên phòng đã tồn tại, vui lòng đổi thành tên phòng tên khác.");
+//			listRooms(request,response);
+//		}
+//		else {
 			
+//	}
 			roomDAO.updateRoom(room);
 			roomBillDAO.autoUpdatePriceRoom_RoomBill();
 			response.sendRedirect(request.getContextPath() + "/room-category");
-		}
 		
 				
 	}

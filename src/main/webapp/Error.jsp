@@ -6,10 +6,16 @@
 <meta charset="UTF-8">
 <title>Kala Hotel | Quyền hạn</title>
 
-<link rel="stylesheet" href="./css/error.css">
+		<style >
+   			<%@ include file="./css/error.css"%>
+   		</style>
+   		
+   		
+   		
+
 </head>
 <body>
-	<h1>403</h1>
+	<h1>403</h1> 
     <div class="cloak__wrapper">
         <div class="cloak__container">
             <div class="cloak"></div>

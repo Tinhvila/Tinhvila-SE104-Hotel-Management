@@ -13,7 +13,7 @@
     box-sizing: border-box;
     transform-style: preserve-3d;
 }
-@property --swing-x {
+/* @property --swing-x {
     initial-value: 0;
     inherits: false;
     syntax: "<integer>";
@@ -22,7 +22,7 @@
     initial-value: 0;
     inherits: false;
     syntax: "<integer>";
-}
+} */
 body {
     box-sizing: border-box;
     max-height: 100vh;
@@ -40,6 +40,7 @@ body {
 body {
     -ms-overflow-style: none; /* cho  Internet Explorer, Edge */
     scrollbar-width: none; /* cho Firefox */
+    background-color: #000;
 }
 
 body::-webkit-scrollbar {
@@ -66,7 +67,8 @@ p {
     font-weight: 100;
     margin-bottom: 1rem;
 }
-h1 {
+
+/* h1 {
     -webkit-animation: swing var(--speed) infinite alternate ease-in-out;
     animation: swing var(--speed) infinite alternate ease-in-out;
     font-size: clamp(5rem, 40vmin, 20rem);
@@ -80,8 +82,8 @@ h1 {
         100%/200% 200%;
     -webkit-background-clip: text;
     color: transparent;
-}
-h1:after {
+} */
+/* h1:after {
     -webkit-animation: swing var(--speed) infinite alternate ease-in-out;
     animation: swing var(--speed) infinite alternate ease-in-out;
     content: "403";
@@ -95,15 +97,19 @@ h1:after {
             calc((var(--swing-x, 0) * 0.05) * 1%),
             calc((var(--swing-y) * 0.05) * 1%)
         );
+} */
+
+h1 {
+    font-size: 5rem;
 }
-.cloak {
+/* .cloak {
     animation: swing var(--speed) infinite alternate-reverse ease-in-out;
     height: 100%;
     width: 100%;
     transform-origin: 50% 30%;
     transform: rotate(calc(var(--swing-x) * -0.25deg));
     background: radial-gradient(40% 40% at 50% 42%, transparent, #000 35%);
-}
+} */
 .cloak__wrapper {
     position: fixed;
     top: 0;

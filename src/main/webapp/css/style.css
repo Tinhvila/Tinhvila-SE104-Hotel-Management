@@ -211,9 +211,17 @@ a.sidebar-link:hover {
 .home-main{
 	height:100%;
 	width:100%;
-	background-image: url("./img/hero-3.jpg");
+	background-image: url("./img/hero-3.jpg"); 
+	filter: blur(4px);
+	/* display:flex;
+	justify-content: center; */
+	/* align-items: center; */
     background-repeat: no-repeat;
     background-size: cover;
+    position: relative;
+    border:transparent;
+     
+    
 }
 
 .fa-solid{
@@ -225,3 +233,35 @@ a.sidebar-link:hover {
 .fa-eye{
 	display: none;
 }
+
+.typing-demo {
+	
+	margin-top: 100px;
+	text-align:center;
+  width: 39ch;
+  animation: typing 4s steps(30), blink .5s step-end infinite alternate;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 3px solid ;
+  font-size: 2em;
+  transition: all 0.3 ease;
+  font-family: "Lora", sans-serif !important;
+  z-index: 2;
+position: absolute;
+  top: 10%;
+  left: 59%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+}
+    
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+

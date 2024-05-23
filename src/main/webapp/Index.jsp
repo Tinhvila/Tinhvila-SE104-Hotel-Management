@@ -111,8 +111,8 @@
             </div>
         </aside>
             <div class="main bg-white-1 home-main">
-      
             </div>
+      			<div class="h1 typing-demo text-white fw-bold mx-auto">Chào mừng đến với hệ thống quản lý khách sạn Kala</div>
 </div>
         <script src="./js/script.js"></script>
     <script src="./js/bootstrap.bundle.min.js"></script>

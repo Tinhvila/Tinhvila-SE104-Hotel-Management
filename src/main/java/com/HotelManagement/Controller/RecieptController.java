@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
 import com.HotelManagement.DAO.Customer_RoomBillDetailDAO;
@@ -20,6 +21,7 @@ import com.HotelManagement.DAO.ReceiptDetailDAO;
 import com.HotelManagement.DAO.RoomBillDAO;
 import com.HotelManagement.DAO.RoomCategoryDAO;
 import com.HotelManagement.DAO.TypeOfCustomerDAO;
+import com.HotelManagement.DAO.UserDAO;
 import com.HotelManagement.Entity.CountCustomerRoomBill;
 import com.HotelManagement.Entity.CountReceiptDetail;
 import com.HotelManagement.Entity.Customer_RoomBillDetail;
@@ -28,6 +30,7 @@ import com.HotelManagement.Entity.ReceiptDetail;
 import com.HotelManagement.Entity.Room;
 import com.HotelManagement.Entity.RoomBill;
 import com.HotelManagement.Entity.TypeCustomer;
+import com.HotelManagement.Entity.User;
 
 
 @WebServlet("/reciept")
@@ -38,6 +41,9 @@ public class RecieptController extends HttpServlet {
     private Customer_RoomBillDetailDAO customer_RoomBillDetailDAO;
     private TypeOfCustomerDAO typeOfCustomerDAO;
     private ReceiptDetailDAO receiptDetailDAO;
+    private UserDAO userDAO;
+    private final String SCREEN = "QuyenLapHoaDonThanhToan";
+	
     
     @Resource(name="jdbc/hotel_db")
 	private DataSource dataSource;
@@ -46,6 +52,7 @@ public class RecieptController extends HttpServlet {
 	public void init() throws ServletException {
 		super.init();
 		try {
+			userDAO = new UserDAO(dataSource);
 			roomBillDAO = new RoomBillDAO(dataSource);
 			receiptDAO = new ReceiptDAO(dataSource);
 			customer_RoomBillDetailDAO = new Customer_RoomBillDetailDAO(dataSource);
@@ -58,6 +65,26 @@ public class RecieptController extends HttpServlet {
 	}
    
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		HttpSession session = request.getSession();
+		User user = (User) session.getAttribute("user");
+		
+		if(user == null) {
+			response.sendRedirect(request.getContextPath() +"/login");
+			return;
+		}
+		String roleGroupId = getRoleGroupOfUser(request);
+		
+		int permissionFlag = 0;
+		try {
+			permissionFlag = getPermission(roleGroupId,SCREEN);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(permissionFlag == 1) {
+		
+		
 		try {
 			String action = request.getParameter("ACTION");
 			if(action==null) action = "LIST";
@@ -86,7 +113,26 @@ public class RecieptController extends HttpServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		}
+		else 
+			response.sendRedirect(request.getContextPath() + "/error");
+	
 	}
+	
+	
+	private int getPermission(String roleGroupId, String _AUTHENTICATION_SCREEN) throws SQLException {
+		
+		return userDAO.getPermission(roleGroupId,_AUTHENTICATION_SCREEN);
+	}
+
+
+private String getRoleGroupOfUser(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		User user = (User) session.getAttribute("user");
+		return user.getAuthorizationID();
+	}
+
+
 	
 	private void listAll(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
 		List<RoomBill> listAllRoomBills = roomBillDAO.getAllRoomBill();
